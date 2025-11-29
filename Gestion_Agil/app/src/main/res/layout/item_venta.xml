@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvFechaVenta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fecha_2025_11_08"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvMetodoPago"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/metodo_de_pago_efectivo" />
+
+    <TextView
+        android:id="@+id/tvCantidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cantidad_productos" />
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/total_120_00" />
+
+    <TextView
+        android:id="@+id/tvCambio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cambio_30_00" />
+</LinearLayout>

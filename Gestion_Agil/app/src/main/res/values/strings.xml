@@ -1,0 +1,84 @@
+<resources>
+    <string name="app_name">Gestión Ágil</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="image_view_item_transform_content_description">Your descriptive text here</string>
+    <string name="nav_header_title">Marco Antonio Bastar de la Fuente</string>
+    <string name="nav_header_subtitle">marcobdelafuente99@gmail.com</string>
+    <string name="nav_header_desc">Usuario en Sesión</string>
+
+    <string name="menu_transform">Ventas</string>
+    <string name="menu_reflow">Inventario</string>
+    <string name="menu_slideshow">Notificaciones</string>
+    <string name="menu_profile">Perfil</string>
+    <string name="opcion1">Ventas</string>
+    <string name="opcion2">Historial</string>
+    <string name="clave_producto">Clave del producto</string>
+    <string name="nombre_producto">Nombre del producto</string>
+    <string name="tipo_de_pago">Tipo de Pago</string>
+    <string name="precio_producto">Precio del producto</string>
+    <string name="cantidad_producto">Cantidad del producto</string>
+    <string name="total_placeholder">Total: $0.00</string>
+    <string name="cobrar">Cobrar</string>
+    <string name="opcion3">Productos</string>
+    <string name="opcion4">Historial</string>
+    <string name="clave_productos">Clave del producto</string>
+    <string name="nombre_productos">Nombre del producto</string>
+    <string name="descripcion_productos">Descripción del producto</string>
+    <string name="precio_productos">Precio del producto</string>
+    <string name="stock_minimo">Stock mínimo</string>
+    <string name="stock_maximo">Stock maximo</string>
+    <string name="fecha_caducidad">Fecha de caducidad</string>
+    <string name="activo">Activo</string>
+    <string name="guardar">Guardar</string>
+    <string name="no_notificacion">No tienes notificaciones</string>
+    <string name="idioma">Idioma</string>
+    <string name="correo">Correo electrónico</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="ayuda">Ayuda</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
+    <string name="welcome">Bienvenido</string>
+    <string name="email">Correo Electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="sign_in">Iniciar Sesión</string>
+    <string name="do_not_have_an_account">¿No tienes una cuenta?</string>
+    <string name="create_new">Regístrate</string>
+    <string name="create_new_account">Crear Nueva Cuenta</string>
+    <string name="username">Nombre de Usuario</string>
+    <string name="email2">Correo Electrónico</string>
+    <string name="password2">Contraseña</string>
+    <string name="register">Registrarse</string>
+    <string name="you_already_have_an_account">¿Ya tienes una cuenta?</string>
+    <string name="enter">Inicia Sesión</string>
+    <string name="icon_profile">Icono de perfil</string>
+    <string name="clave_del_producto">Clave del producto</string>
+    <string name="nombre_del_producto">Nombre del producto</string>
+    <string name="descripcion">Descripción</string>
+    <string name="stock">Stock</string>
+    <string name="precio">Precio</string>
+    <string name="estado">Estado</string>
+    <string name="editar">Editar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="nuevo_precio">Nuevo precio</string>
+    <string name="fecha">Fecha: --/--/----</string>
+    <string name="fecha_2025_11_08">Fecha: 2025-11-08</string>
+    <string name="metodo_de_pago_efectivo">Método de pago: Efectivo</string>
+    <string name="cantidad_productos">Cantidad: 2 productos</string>
+    <string name="total_120_00">Total: $120.00</string>
+    <string name="cambio_30_00">Cambio: $30.00</string>
+    <string name="version">Versión 1.0.0</string>
+    <string name="has_olvidado_tu_contrasena">¿Has olvidado tu contraseña?</string>
+    <string name="recuperar_contrasena">Reestablecer contraseña</string>
+    <string name="correo_y_contrasena">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="correo_electronico">Correo electrónico</string>
+    <string name="enviar_enlace">Enviar enlace</string>
+
+    <string-array name="tipos_pago">
+        <item>Efectivo</item>
+        <item>Tarjeta de Crédito</item>
+        <item>Tarjeta de Débito</item>
+        <item>Transferencia</item>
+        <item>QR de Mercado Pago</item>
+        <item>PayPal</item>
+    </string-array>
+</resources>

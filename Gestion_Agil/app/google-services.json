@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "115398022834",
+    "project_id": "appmobile-gestionagil",
+    "storage_bucket": "appmobile-gestionagil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:115398022834:android:0bc9ad8daace7f8261dbab",
+        "android_client_info": {
+          "package_name": "com.example.gestion_agil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMGtvBGG7WfpmX7P8rGF0HfZoy8km_RlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
