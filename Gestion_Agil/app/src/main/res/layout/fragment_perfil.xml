@@ -65,6 +65,13 @@
             <View style="@style/ProfileDivider" />
 
             <TextView
+                android:id="@+id/notificacion"
+                style="@style/ProfileOptionItem"
+                android:text="@string/notificacion" />
+
+            <View style="@style/ProfileDivider" />
+
+            <TextView
                 android:id="@+id/correo"
                 style="@style/ProfileOptionItem"
                 android:text="@string/correo" />

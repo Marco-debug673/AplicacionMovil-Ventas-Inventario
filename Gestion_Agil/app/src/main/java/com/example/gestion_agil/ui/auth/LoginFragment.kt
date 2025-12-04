@@ -32,10 +32,10 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Observa los resultados de registro en tiempo real
-        authViewModel.authResult.observe(viewLifecycleOwner) { result ->
-            Toast.makeText(requireContext(), result.second, Toast.LENGTH_SHORT).show()
+        authViewModel.authResult.observe(viewLifecycleOwner) { (success, mensaje) ->
+            Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
 
-            if (result.first) {
+            if (success) {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 startActivity(intent)
                 requireActivity().finish()

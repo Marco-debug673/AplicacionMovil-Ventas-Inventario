@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_transform, R.id.nav_reflow, R.id.nav_slideshow, R.id.nav_profile
+                R.id.nav_transform, R.id.nav_reflow, R.id.nav_profile
             ), binding.drawerLayout
         )
 

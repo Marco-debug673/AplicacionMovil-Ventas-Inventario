@@ -34,37 +34,76 @@ class PerfilFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[PerfilViewModel::class.java]
 
-        // Mostrar datos del usuario Firebase
-        viewModel.usuarioFirebase.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                binding.profileName.text = user.displayName ?: "Usuario"
-                binding.correo.text = user.email ?: ""
-            }
-        }
+        //Observa el usuario actual y actualiza la UI
+        viewModel.usuarioActual.observe(viewLifecycleOwner) { usuario ->
+            if (usuario != null) {
+                binding.profileName.text = usuario.nombre_usuario
+                binding.correo.text = usuario.correo_electronico
 
-        binding.logoutButton.setOnClickListener {
-            mostrarDialogoCierreSesion()
-        }
-
-        viewModel.logoutResult.observe(viewLifecycleOwner) { result ->
-            if (result.first) {
-                Toast.makeText(requireContext(), result.second, Toast.LENGTH_SHORT).show()
-                irALogin()
+                binding.logoutButton.setOnClickListener {
+                    mostrarDialogoCierreSesion(usuario.nombre_usuario)
             }
+        } else  {
+                binding.profileName.text = ""
+                binding.correo.text = ""
+            }
+    }
+
+    viewModel.logoutResult.observe(viewLifecycleOwner) {
+        result ->
+        val (success, message) = result
+
+        if (success) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            irALogin()
         }
+    }
 
         binding.ayuda.setOnClickListener {
             mostrarAyuda()
         }
     }
 
-    private fun mostrarDialogoCierreSesion() {
+    private fun mostrarAyuda() {
+        val mensajeAyuda = """
+            ¿Cómo usar la aplicación correctamente?
+            
+            1. Iniciar sesión o registrarse 
+            Ingresa con tu correo y contraseña. Si eres nuevo, registra tu cuenta.
+            
+            2. Registrar productos 
+            Agrega productos con nombre, cantidad y fecha de caducidad. 
+            La apllicación usará esta fecha para enviarte recordatorios.
+            
+            3. Notificaciones de caducidad
+            Recibirás avisos cuando un producto: 
+            • Esté a 3 días de caducar o caduque hoy
+            
+            4. Registrar ventas
+            Registra una venta escribiendo la clave del producto y la cantidad vendida.
+            
+            5. Perfil
+            En esta sección puedes ver tu nombre de usuario, correo, las notificaciones de caducidad y cerrar sesión.
+            
+            6. Cerrar sesión
+            Toca “Cerrar sesión” y confirma para salir de la cuenta.
+         """.trimIndent()
+         
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Ayuda")
+            .setMessage(mensajeAyuda)
+            .setPositiveButton("Entendido") { dialog, _ ->
+                dialog.dismiss()
+            }.show()
+    }
+
+    private fun mostrarDialogoCierreSesion(nombreUsuario: String) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Cerrar sesión")
             .setMessage("¿Deseas cerrar sesión?")
             .setIcon(R.drawable.ic_logout)
             .setPositiveButton("Sí") { _, _ ->
-                viewModel.logout()
+                viewModel.logout(nombreUsuario)
             }
             .setNegativeButton("No", null)
             .show()
@@ -75,25 +114,6 @@ class PerfilFragment : Fragment() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
-    }
-
-    private fun mostrarAyuda() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Ayuda")
-            .setMessage(
-                """
-                ¿Cómo usar la aplicación?
-                
-                1. Crear una cuenta.
-                2. Inicia sesión con tu cuenta.
-                3. Registra productos.
-                4. Recibe notificaciones de caducidad.
-                5. Consulta tu perfil.
-                6. Cierra sesión cuando lo desees.
-                """.trimIndent()
-            )
-            .setPositiveButton("Entendido", null)
-            .show()
     }
 
     override fun onDestroyView() {

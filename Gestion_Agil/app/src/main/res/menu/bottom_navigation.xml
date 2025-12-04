@@ -13,10 +13,6 @@
             android:icon="@drawable/ic_inventory_2"
             android:title="@string/menu_reflow" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_notifications"
-            android:title="@string/menu_slideshow" />
-        <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_menu_profile"
             android:title="@string/menu_profile" />

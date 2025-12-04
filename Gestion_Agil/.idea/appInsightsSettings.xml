@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.gestion_agil" />
-                  <option name="mobileSdkAppId" value="1:115398022834:android:0bc9ad8daace7f8261dbab" />
-                  <option name="projectId" value="appmobile-gestionagil" />
-                  <option name="projectNumber" value="115398022834" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
