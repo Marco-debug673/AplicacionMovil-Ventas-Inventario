@@ -72,7 +72,14 @@
     <string name="recuperar_contrasena">Reestablecer contraseña</string>
     <string name="correo_y_contrasena">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
     <string name="correo_electronico">Correo electrónico</string>
-    <string name="enviar_enlace">Enviar enlace</string>
+    <string name="enviar_enlace">Enviar código</string>
+    <string name="ingresa_el_pin_enviado_a_tu_correo">Ingresa el PIN enviado a tu correo</string>
+    <string name="pin">PIN</string>
+    <string name="verificar_pin">Verificar PIN</string>
+    <string name="nueva_contrasena">Nueva contraseña</string>
+    <string name="nuevacontrasena">Nueva contraseña</string>
+    <string name="confirmar_contrasena">Confirmar contraseña</string>
+    <string name="guardar_nueva_contrasena">Guardar</string>
 
     <string-array name="tipos_pago">
         <item>Efectivo</item>

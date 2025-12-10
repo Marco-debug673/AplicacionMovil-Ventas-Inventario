@@ -5,7 +5,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 
-@Database(entities = [Productos::class, Usuarios::class, Ventas::class, Detalle_Venta::class, Notificacion::class], version = 3, exportSchema = false)
+@Database(entities = [Productos::class,
+    Usuarios::class,
+    Ventas::class,
+    Detalle_Venta::class,
+    Notificacion::class,
+    Sesion::class], version = 4, exportSchema = false)
+
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductosDao
@@ -13,6 +19,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ventasDao(): VentasDao
     abstract fun Detalle_ventaDao(): Detalle_VentaDao
     abstract fun NotificacionDao(): NotificacionDao
+    abstract fun SesionDao(): SesionDao
 
     companion object {
         @Volatile
@@ -25,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "Tienda_db"
                 )
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance

@@ -33,4 +33,10 @@ interface UsuariosDao {
 
     @Query("SELECT * FROM Usuarios")
     fun getAllUsuarios(): LiveData<List<Usuarios>>
+
+    @Query("SELECT * FROM Usuarios WHERE correo_electronico = :correo AND clave_usuario = :clave LIMIT 1")
+    suspend fun validarUsuario(correo: String, clave: String): Usuarios?
+
+    @Query("SELECT * FROM Usuarios WHERE correo_electronico = :correo AND pin_recuperacion = :pin LIMIT 1")
+    suspend fun validarPin(correo: String, pin: String): Usuarios?
 }

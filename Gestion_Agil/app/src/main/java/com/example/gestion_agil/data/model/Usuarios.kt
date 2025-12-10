@@ -14,5 +14,6 @@ data class Usuarios (
     val nombre_usuario: String,
     val correo_electronico: String,
     val clave_usuario: String,
-    val salt: String
+    val salt: String,
+    val pin_recuperacion: String? = null
 )

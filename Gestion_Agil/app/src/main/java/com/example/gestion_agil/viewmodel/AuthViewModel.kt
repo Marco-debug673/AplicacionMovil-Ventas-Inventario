@@ -8,17 +8,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.gestion_agil.data.model.AppDatabase
 import com.example.gestion_agil.data.model.HashUtils
 import com.example.gestion_agil.data.model.Usuarios
+import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.data.repository.UsuariosRepository
 import kotlinx.coroutines.launch
 
 class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
     private val repository: UsuariosRepository
+    private val sesionRepository: SesionRepository
 
     init {
-        val UsuariosDao =
-            AppDatabase.getDatabase(application).UsuariosDao()
+        val UsuariosDao = AppDatabase.getDatabase(application).UsuariosDao()
+        val sesionDao = AppDatabase.getDatabase(application).SesionDao()
         repository = UsuariosRepository(UsuariosDao)
+        sesionRepository = SesionRepository(sesionDao)
     }
 
     private val _authResult = MutableLiveData<Pair<Boolean, String>>()
@@ -82,12 +85,8 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
     // ================= LOGIN =================
     fun login(correo: String, clave: String) {
         viewModelScope.launch {
-            if (!isEmailValidate(correo)) {
-                _authResult.postValue(Pair(false, "Ingrese un correo electrónico válido"))
-                return@launch
-            }
-
             val usuario = repository.obtenerPorCorreo(correo)
+
             if (usuario == null) {
                 _authResult.postValue(Pair(false, "El usuario no existe"))
                 return@launch
@@ -95,27 +94,13 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
             val hashInput = HashUtils.hashwithsalt(clave, usuario.salt)
             if (hashInput == usuario.clave_usuario) {
-                //Guardar sesión
-                saveLoggedUser(
-                    usuario.id_usuario,
-                    usuario.nombre_usuario,
-                    usuario.correo_electronico
-                )
-                //Mensaje con el nombre del usuario
+                //Guardar sesión en Room
+                sesionRepository.guardarSesion(usuario.id_usuario)
+
                 _authResult.postValue(Pair(true, "Bienvenido, ${usuario.nombre_usuario}"))
             } else {
                 _authResult.postValue(Pair(false, "Contraseña incorrecta"))
             }
-        }
-    }
-
-    fun saveLoggedUser(id: Int, nombre: String, correo: String) {
-        val sharedPrefs = getApplication<Application>().getSharedPreferences("user_session", 0)
-        with(sharedPrefs.edit()) {
-            putInt("id_usuario", id)
-            putString("nombre_usuario", nombre)
-            putString("correo_electronico", correo)
-            apply()
         }
     }
 
@@ -129,12 +114,5 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
     fun update(Usuarios: Usuarios) = viewModelScope.launch {
         repository.update(Usuarios)
-    }
-    // ================= RECUPERAR CONTRASEÑA =================
-    fun recoverPassword(email: String) {
-        if (!isEmailValidate(email)) {
-            _authResult.value = Pair(false, "Correo no válido")
-            return
-        }
     }
 }

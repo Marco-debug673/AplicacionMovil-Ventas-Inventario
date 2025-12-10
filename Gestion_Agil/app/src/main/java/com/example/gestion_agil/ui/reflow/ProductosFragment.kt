@@ -8,9 +8,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.gestion_agil.data.model.AppDatabase
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.databinding.FragmentProductosBinding
 import com.example.gestion_agil.viewmodel.ProductosViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 import java.time.format.DateTimeFormatter
@@ -38,9 +41,14 @@ class ProductosFragment : Fragment() {
 
         productosViewModel = ViewModelProvider(this)[ProductosViewModel::class.java]
 
+        val appDb = AppDatabase.getDatabase(requireContext())
+        val sesionDao = appDb.SesionDao()
 
-        val prefs = requireContext().getSharedPreferences("user_session", 0)
-        idUsuario = prefs.getInt("id_usuario", -1)
+        // Cargar id_usuario desde Room
+        lifecycleScope.launch {
+            val sesion = sesionDao.getSesion()
+            idUsuario = sesion?.id_usuario ?: -1
+        }
 
         // Observar resultado de inserciones/actualizaciones/eliminaciones
         productosViewModel.insertResult.observe(viewLifecycleOwner) { (success, message) ->
@@ -77,7 +85,7 @@ class ProductosFragment : Fragment() {
         val stockMax = stockMaxStr.toIntOrNull() ?: 0
 
         if (precio <= 0 || stockMin < 0 || stockMax <= 0) {
-            productosViewModel.showErrorMessage("Valores numéricos inválidos")
+            productosViewModel.showErrorMessage("Valores numéricos incorrectos")
             return
         }
 

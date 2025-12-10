@@ -28,6 +28,33 @@
         android:id="@+id/recoveryPasswordFragment"
         android:name="com.example.gestion_agil.ui.auth.RecoveryPasswordFragment"
         android:label="fragment_recovery_password"
-        tools:layout="@layout/fragment_recovery_password" />
+        tools:layout="@layout/fragment_recovery_password" >
+        <action
+            android:id="@+id/action_recovery_to_pin"
+            app:destination="@id/inputPinFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inputPinFragment"
+        android:name="com.example.gestion_agil.ui.auth.InputPinFragment"
+        android:label="fragment_input_pin"
+        tools:layout="@layout/fragment_input_pin">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_pin_to_newpass"
+            app:destination="@id/newPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newPasswordFragment"
+        android:name="com.example.gestion_agil.ui.auth.NewPasswordFragment"
+        android:label="fragment_new_password"
+        tools:layout="@layout/fragment_new_password" >
+        <argument
+            android:name="idUsuario"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>

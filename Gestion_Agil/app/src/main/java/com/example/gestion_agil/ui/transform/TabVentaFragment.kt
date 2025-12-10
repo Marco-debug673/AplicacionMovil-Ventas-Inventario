@@ -183,7 +183,7 @@ class TabVentaFragment : Fragment() {
                 if (pago <= 0) {
                     AlertDialog.Builder(requireContext())
                         .setTitle("Pago incorrecto")
-                        .setMessage("Por favor, ingrese una cantidad de pago válida.")
+                        .setMessage("Por favor, ingresa la cantidad de pago válida.")
                         .setPositiveButton("Aceptar", null)
                         .show()
                     return@setPositiveButton
