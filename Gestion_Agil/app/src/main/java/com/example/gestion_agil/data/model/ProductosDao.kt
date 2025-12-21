@@ -21,6 +21,9 @@ interface ProductosDao {
     @Query("SELECT * FROM Productos WHERE clave_producto = :clave LIMIT 1")
     suspend fun getProductoByClave(clave: String): Productos?
 
+    @Query("SELECT * FROM productos WHERE nombre_producto = :nombre COLLATE NOCASE LIMIT 1")
+    suspend fun getProductoByNombre(nombre: String): Productos?
+
     @Query("SELECT * FROM productos")
     suspend fun getAllProductosList(): List<Productos>
 }

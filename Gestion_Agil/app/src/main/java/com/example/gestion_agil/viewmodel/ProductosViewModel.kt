@@ -74,4 +74,11 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
             _productoEncontrado.postValue(producto)
         }
     }
+
+    fun buscarPorNombre(nombre: String) {
+        viewModelScope.launch {
+            val producto = repository.getProductoByNombre(nombre)
+            _productoEncontrado.postValue(producto)
+        }
+    }
 }

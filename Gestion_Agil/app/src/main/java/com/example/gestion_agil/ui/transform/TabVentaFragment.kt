@@ -53,9 +53,13 @@ class TabVentaFragment : Fragment() {
 
         setupPaymentTypeSelector()
 
+        var actualizandoCampos = false
+
         // Buscar producto al escribir clave
         binding.claveProducto.editText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
+                if (actualizandoCampos) return
+
                 val clave = s.toString().trim()
                 if (clave.isNotEmpty()) {
                     productosViewModel.buscarPorClave(clave)
@@ -65,19 +69,33 @@ class TabVentaFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Observar producto encontrado
-        productosViewModel.productoEncontrado.observe(viewLifecycleOwner) { producto ->
-            if (producto != null) {
-                binding.nombreProducto.editText?.setText(producto.nombre_producto)
-                binding.precioProducto.editText?.setText(producto.precio.toString())
-                precioActual = producto.precio
-                recalcularTotal()
-            } else {
-                binding.nombreProducto.editText?.setText("")
-                binding.precioProducto.editText?.setText("")
-                precioActual = 0.0
-                recalcularTotal()
+        //Buscar producto al escribir nombre
+        binding.nombreProducto.editText?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (actualizandoCampos) return
+
+                val nombre = s.toString().trim()
+                if (nombre.isNotEmpty()) {
+                    productosViewModel.buscarPorNombre(nombre)
+                }
             }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        // Observar producto encontrado por clave o nombre
+        productosViewModel.productoEncontrado.observe(viewLifecycleOwner) { producto ->
+            if (producto == null) return@observe
+
+            actualizandoCampos = true
+
+            binding.claveProducto.editText?.setText(producto.clave_producto)
+            binding.nombreProducto.editText?.setText(producto.nombre_producto)
+            binding.precioProducto.editText?.setText(producto.precio.toString())
+            precioActual = producto.precio
+
+            actualizandoCampos = false
+            recalcularTotal()
         }
 
         // Escuchar cambios de cantidad
@@ -116,11 +134,12 @@ class TabVentaFragment : Fragment() {
         binding.tvTotal.text = "Total: ${format.format(totalActual)}"
     }
 
+    @SuppressLint("SetTextI18n", "DefaultLocale")
     private fun mostrarDialogoCobro() {
         if (totalActual <= 0) {
             AlertDialog.Builder(requireContext())
-                .setTitle("Sin datos")
-                .setMessage("Asegúrate de ingresar un producto y cantidad válida")
+                .setTitle("Campos Vacíos")
+                .setMessage("Asegúrate de ingresar datos correctos de un producto válido")
                 .setPositiveButton("Aceptar", null)
                 .show()
             return
@@ -173,25 +192,38 @@ class TabVentaFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Cobrar venta")
             .setView(layout)
-            .setPositiveButton("Guardar") { _, _ ->
-                val pago = etPago.text.toString().toDoubleOrNull() ?: 0.0
-                val fecha = etFecha.text.toString()
-
-                if (pago <= 0) {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Pago incorrecto")
-                        .setMessage("Por favor, ingresa la cantidad de pago válida.")
-                        .setPositiveButton("Aceptar", null)
-                        .show()
-                    return@setPositiveButton
-                }
-
-                guardarVenta(pago, fecha, cambioCalculado)
-            }
+            .setPositiveButton("Guardar", null)
             .setNegativeButton("Cancelar", null)
+            .create()
+
+        dialog.show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val pago = etPago.text.toString().toDoubleOrNull() ?: 0.0
+            val fecha = etFecha.text.toString()
+
+            if (pago <= 0) {
+                mostrarError("Pago incorrecto", "Ingresa una cantidad mayor a cero.")
+                return@setOnClickListener
+            }
+
+            if (pago < totalActual) {
+                mostrarError("Pago insuficiente", "El pago debe ser igual o mayor al total.")
+                return@setOnClickListener
+            }
+            guardarVenta(pago, fecha, cambioCalculado)
+            dialog.dismiss()
+        }
+    }
+
+    private fun mostrarError(titulo: String, mensaje: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(titulo)
+            .setMessage(mensaje)
+            .setPositiveButton("Aceptar", null)
             .show()
     }
 

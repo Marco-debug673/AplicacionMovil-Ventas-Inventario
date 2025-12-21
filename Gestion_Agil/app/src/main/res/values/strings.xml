@@ -67,7 +67,7 @@
     <string name="cantidad_productos">Cantidad: 2 productos</string>
     <string name="total_120_00">Total: $120.00</string>
     <string name="cambio_30_00">Cambio: $30.00</string>
-    <string name="version">Versión 1.0.0</string>
+    <string name="version">Versión 1.0.1</string>
     <string name="has_olvidado_tu_contrasena">¿Has olvidado tu contraseña?</string>
     <string name="recuperar_contrasena">Reestablecer contraseña</string>
     <string name="correo_y_contrasena">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>

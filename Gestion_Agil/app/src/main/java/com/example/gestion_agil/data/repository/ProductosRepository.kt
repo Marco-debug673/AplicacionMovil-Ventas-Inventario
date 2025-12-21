@@ -24,4 +24,8 @@ class ProductosRepository (private val productDao: ProductosDao) {
     suspend fun getProductoByClave(clave: String): Productos? {
         return productDao.getProductoByClave(clave)
     }
+
+    suspend fun getProductoByNombre(nombre: String): Productos? {
+        return productDao.getProductoByNombre(nombre)
+    }
 }
