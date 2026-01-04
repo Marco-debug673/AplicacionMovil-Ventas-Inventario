@@ -1,23 +1,28 @@
 package com.example.gestion_agil.ui.transform
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gestion_agil.data.model.AppDatabase
+import com.example.gestion_agil.data.model.Ventas
 import com.example.gestion_agil.data.repository.VentasRepository
 import com.example.gestion_agil.databinding.FragmentTabHistorialBinding
+import com.example.gestion_agil.viewmodel.VentasViewModel
 
 class TabHistorialFragment : Fragment() {
 
     private var _binding: FragmentTabHistorialBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: TabHistorialViewModel
+    private lateinit var historialViewModel: TabHistorialViewModel
+    private lateinit var ventasViewModel: VentasViewModel
     private lateinit var historialAdapter: HistorialAdapter
 
     override fun onCreateView(
@@ -33,7 +38,9 @@ class TabHistorialFragment : Fragment() {
         val factory = TabHistorialViewModelFactory(repository)
 
         //Asegúrate de que TabHistorialViewModel esté importado del mismo paquete
-        viewModel = ViewModelProvider(this, factory)[TabHistorialViewModel::class.java]
+        historialViewModel = ViewModelProvider(this, factory)[TabHistorialViewModel::class.java]
+
+        ventasViewModel = ViewModelProvider(this)[VentasViewModel::class.java]
 
         return binding.root
     }
@@ -43,12 +50,13 @@ class TabHistorialFragment : Fragment() {
         setupRecyclerView()
         setupSearchView()
         observeHistorial()
+        observeEliminarVenta()
     }
 
     private fun setupRecyclerView() {
-        historialAdapter = HistorialAdapter(emptyList())
+        historialAdapter = HistorialAdapter(emptyList(), ventasViewModel)
         binding.recyclerViewHistorial.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = historialAdapter
         }
     }
@@ -57,16 +65,37 @@ class TabHistorialFragment : Fragment() {
         binding.searchViewHistorial.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean = false
             override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.onSearchQueryChanged(newText)
+                historialViewModel.onSearchQueryChanged(newText)
                 return true
             }
         })
     }
 
     private fun observeHistorial() {
-        viewModel.historial.observe(viewLifecycleOwner) { historialList ->
+        historialViewModel.historial.observe(viewLifecycleOwner) { historialList ->
             historialAdapter.updateData(historialList)
         }
+    }
+
+    private fun observeEliminarVenta() {
+        ventasViewModel.selectedVentaParaEliminar.observe(viewLifecycleOwner) { venta ->
+            venta?.let {
+                mostrarDialogoEliminar(it)
+                ventasViewModel.selectVentaParaEliminar(null)
+            }
+        }
+    }
+
+    private fun mostrarDialogoEliminar(venta: Ventas) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar venta")
+            .setMessage("¿Deseas eliminar la venta del ${venta.fecha_venta}?")
+            .setPositiveButton("Sí") { _, _ ->
+                ventasViewModel.delete(venta)
+                Toast.makeText(requireContext(), "Venta eliminada correctamente", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     override fun onDestroyView() {

@@ -19,6 +19,9 @@ class VentasViewModel (application: Application) : AndroidViewModel(application)
     private val _insertResult = MutableLiveData<Pair<Boolean, String>>()
     val insertResult: LiveData<Pair<Boolean, String>> get() = _insertResult
 
+    private val _selectedVentaParaEliminar = MutableLiveData<Ventas?>()
+    val selectedVentaParaEliminar: LiveData<Ventas?> get() = _selectedVentaParaEliminar
+
     init {
         val VentasDao = AppDatabase.getDatabase(application).ventasDao()
         repository = VentasRepository(VentasDao)
@@ -40,5 +43,9 @@ class VentasViewModel (application: Application) : AndroidViewModel(application)
 
     fun delete(Ventas: Ventas) = viewModelScope.launch{
         repository.delete(Ventas)
+    }
+
+    fun selectVentaParaEliminar(venta: Ventas?) {
+        _selectedVentaParaEliminar.postValue(venta)
     }
 }

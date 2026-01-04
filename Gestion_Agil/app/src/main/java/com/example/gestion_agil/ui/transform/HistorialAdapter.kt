@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gestion_agil.data.model.Ventas
 import com.example.gestion_agil.databinding.ItemVentaBinding
+import com.example.gestion_agil.viewmodel.VentasViewModel
 import java.text.NumberFormat
 
-class HistorialAdapter(private var ventasList: List<Ventas>) :
+class HistorialAdapter(private var ventasList: List<Ventas>, private val ventasViewModel: VentasViewModel) :
     RecyclerView.Adapter<HistorialAdapter.HistorialViewHolder>() {
 
     class HistorialViewHolder(val binding: ItemVentaBinding) :
@@ -28,6 +29,10 @@ class HistorialAdapter(private var ventasList: List<Ventas>) :
             tvCantidad.text = "Cantidad: ${venta.cantidad_producto} productos"
             tvTotal.text = "Total: ${format.format(venta.total_venta)}"
             tvCambio.text = "Cambio: ${format.format(venta.cambio)}"
+
+            btnEliminarVenta.setOnClickListener {
+                ventasViewModel.selectVentaParaEliminar(venta)
+            }
         }
     }
 
