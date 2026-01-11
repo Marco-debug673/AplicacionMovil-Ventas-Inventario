@@ -69,11 +69,11 @@
     <string name="cambio_30_00">Cambio: $30.00</string>
     <string name="version">Versión 1.1.0</string>
     <string name="has_olvidado_tu_contrasena">¿Has olvidado tu contraseña?</string>
-    <string name="recuperar_contrasena">Reestablecer contraseña</string>
-    <string name="correo_y_contrasena">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="recuperar_contrasena">Recuperaciòn de contraseña</string>
+    <string name="correo_y_contrasena">Ingresa el correo electrónico y se generarà un còdigo para restablecer tu contraseña.</string>
     <string name="correo_electronico">Correo electrónico</string>
     <string name="enviar_enlace">Enviar código</string>
-    <string name="ingresa_el_pin_enviado_a_tu_correo">Ingresa el PIN enviado a tu correo</string>
+    <string name="ingresa_el_pin_enviado_a_tu_correo">Ingresa el PIN generado en pantalla</string>
     <string name="pin">PIN</string>
     <string name="verificar_pin">Verificar PIN</string>
     <string name="nueva_contrasena">Nueva contraseña</string>

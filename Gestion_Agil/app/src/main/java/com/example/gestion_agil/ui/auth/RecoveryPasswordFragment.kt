@@ -3,6 +3,7 @@ package com.example.gestion_agil.ui.auth
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +32,7 @@ class RecoveryPasswordFragment : Fragment(R.layout.fragment_recovery_password) {
             val email = binding.etRecoveryEmail.text.toString().trim()
 
             if (email.isEmpty()) {
-                binding.etRecoveryEmail.error = "Ingresa tu correo"
+                binding.etRecoveryEmail.error = "Ingresa el correo"
                 return@setOnClickListener
             }
 
@@ -46,12 +47,16 @@ class RecoveryPasswordFragment : Fragment(R.layout.fragment_recovery_password) {
                 val pin = (100000..999999).random().toString()
                 viewModel.guardarPin(usuario, pin)
 
-                Toast.makeText(requireContext(), "PIN generado: $pin", Toast.LENGTH_LONG).show()
-
-                val action = RecoveryPasswordFragmentDirections
-                    .actionRecoveryToPin(email)
-
-                findNavController().navigate(action)
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Código de Recuperación")
+                    .setMessage("Tu PIN generado es: $pin\n\nPor favor, anótalo para ingresarlo en el siguiente paso.")
+                    .setPositiveButton("Aceptar") { _, _ ->
+                        val action = RecoveryPasswordFragmentDirections
+                            .actionRecoveryToPin(email)
+                        findNavController().navigate(action)
+                    }
+                    .setCancelable(false)
+                    .show()
             }
         }
     }
