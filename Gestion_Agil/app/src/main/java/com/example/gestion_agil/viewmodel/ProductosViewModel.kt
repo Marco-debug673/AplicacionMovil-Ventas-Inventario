@@ -14,8 +14,9 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
     private val _productoEncontrado = MutableLiveData<Productos?>()
     val productoEncontrado: LiveData<Productos?> get() = _productoEncontrado
 
-    private val _insertResult = MutableLiveData<Pair<Boolean, String>>()
-    val insertResult: LiveData<Pair<Boolean, String>> get() = _insertResult
+    // LiveData para mensajes de validación o errores (anulable para evitar repetición)
+    private val _statusMessage = MutableLiveData<String?>()
+    val statusMessage: LiveData<String?> get() = _statusMessage
 
     private val _selectedProductoParaEditar = MutableLiveData<Productos?>()
     val selectedProductoParaEditar: LiveData<Productos?> get() = _selectedProductoParaEditar
@@ -30,34 +31,23 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun insert(product: Productos) = viewModelScope.launch {
-        try {
-            repository.insert(product)
-            _insertResult.postValue(Pair(true, "Producto guardado correctamente"))
-        } catch (e: Exception) {
-            _insertResult.postValue(Pair(false, "Error al guardar el producto: ${e.message}"))
-        }
+        repository.insert(product)
     }
 
     fun update(product: Productos) = viewModelScope.launch {
-        try {
-            repository.update(product)
-            _insertResult.postValue(Pair(true, "Producto actualizado correctamente"))
-        } catch (e: Exception) {
-            _insertResult.postValue(Pair(false, "Error al actualizar: ${e.message}"))
-        }
+        repository.update(product)
     }
 
     fun delete(product: Productos) = viewModelScope.launch {
-        try {
-            repository.delete(product)
-            _insertResult.postValue(Pair(true, "Producto eliminado correctamente"))
-        } catch (e: Exception) {
-            _insertResult.postValue(Pair(false, "Error al eliminar: ${e.message}"))
-        }
+        repository.delete(product)
     }
 
     fun showErrorMessage(message: String) {
-        _insertResult.postValue(Pair(false, message))
+        _statusMessage.postValue(message)
+    }
+
+    fun resetStatusMessage() {
+        _statusMessage.value = null
     }
 
     fun selectProductoParaEditar(product: Productos?) {

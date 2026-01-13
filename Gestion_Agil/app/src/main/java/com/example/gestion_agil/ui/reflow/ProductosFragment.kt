@@ -50,10 +50,12 @@ class ProductosFragment : Fragment() {
             idUsuario = sesion?.id_usuario ?: -1
         }
 
-        // Observar resultado de inserciones/actualizaciones/eliminaciones
-        productosViewModel.insertResult.observe(viewLifecycleOwner) { (success, message) ->
-            mostrarDialogoResultado(success, message)
-            if (success) limpiarCampos()
+        // Observar mensajes de error o validación desde el ViewModel
+        productosViewModel.statusMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                mostrarDialogoResultado(false, it)
+                productosViewModel.resetStatusMessage()
+            }
         }
 
         binding.fechaCaducidadProducto.editText?.setOnClickListener {
@@ -111,7 +113,12 @@ class ProductosFragment : Fragment() {
             idUsuarioForeign = idUsuario
         )
 
+        // Insertar producto
         productosViewModel.insert(producto)
+        
+        // Mostrar confirmación y limpiar campos
+        mostrarDialogoResultado(true, "Producto registrado correctamente")
+        limpiarCampos()
     }
 
     private fun mostrarDatePicker() {
@@ -123,10 +130,7 @@ class ProductosFragment : Fragment() {
         val datePicker = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
-                // 1. Crear un objeto LocalDate a partir de la selección del usuario.
-                // Se suma 1 al mes porque en DatePickerDialog el rango es 0-11.
                 val fechaObjeto = LocalDate.of(year, month + 1, dayOfMonth)
-
                 val formatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es"))
                 fechaSeleccionada = fechaObjeto.format(formatter)
                 binding.fechaCaducidadProducto.editText?.setText(fechaSeleccionada)
@@ -137,11 +141,11 @@ class ProductosFragment : Fragment() {
     }
 
     private fun mostrarDialogoResultado(success: Boolean, mensaje: String) {
-        val titulo = if (success) "Éxito" else "Error"
+        val titulo = if (success) "Éxito" else "Atención"
         val icon = if (success)
             android.R.drawable.checkbox_on_background
         else
-            android.R.drawable.ic_delete
+            android.R.drawable.ic_dialog_alert
 
         AlertDialog.Builder(requireContext())
             .setTitle(titulo)

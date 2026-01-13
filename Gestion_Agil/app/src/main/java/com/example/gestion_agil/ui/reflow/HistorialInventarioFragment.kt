@@ -47,19 +47,17 @@ class HistorialInventarioFragment : Fragment() {
             adapter.updateData(productos)
         }
 
-        // Observa los resultados de operaciones (insert, update, delete)
-        productosViewModel.insertResult.observe(viewLifecycleOwner) { (success, message) ->
-            val icon = if (success)
-                android.R.drawable.checkbox_on_background
-            else
-                android.R.drawable.ic_delete
-
-            AlertDialog.Builder(requireContext())
-                .setTitle(if (success) "Éxito" else "Error")
-                .setMessage(message)
-                .setIcon(icon)
-                .setPositiveButton("Aceptar", null)
-                .show()
+        // Observa mensajes de error o validación (evita repetición al navegar)
+        productosViewModel.statusMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Atención")
+                    .setMessage(it)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Aceptar", null)
+                    .show()
+                productosViewModel.resetStatusMessage()
+            }
         }
 
         // Observa los productos seleccionados para editar o eliminar
@@ -132,6 +130,8 @@ class HistorialInventarioFragment : Fragment() {
                 )
 
                 productosViewModel.update(productoEditado)
+                
+                // Mensaje manual para evitar que se repita al navegar
                 Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancelar", null)
@@ -147,6 +147,7 @@ class HistorialInventarioFragment : Fragment() {
             .setMessage("¿Deseas eliminar el producto ${producto.nombre_producto}?")
             .setPositiveButton("Sí") { _, _ ->
                 productosViewModel.delete(producto)
+                // Mensaje manual
                 Toast.makeText(requireContext(), "Producto eliminado", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("No", null)

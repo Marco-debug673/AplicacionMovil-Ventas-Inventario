@@ -108,16 +108,6 @@ class TabVentaFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Observa resultado de inserción
-        ventasViewModel.insertResult.observe(viewLifecycleOwner) { (success, message) ->
-            AlertDialog.Builder(requireContext())
-                .setTitle(if (success) "Venta registrada" else "Error")
-                .setMessage(message)
-                .setPositiveButton("Aceptar", null)
-                .show()
-            if (success) limpiarCampos()
-        }
-
         binding.btnCobrar.setOnClickListener { mostrarDialogoCobro() }
     }
 
@@ -243,7 +233,7 @@ class TabVentaFragment : Fragment() {
 
         // Mostrar confirmación con cambio
         val format = NumberFormat.getCurrencyInstance()
-        val mensaje = """
+        val mensajeResumen = """
         Venta guardada éxitosamente.
         
         Total: ${format.format(totalActual)}
@@ -253,14 +243,13 @@ class TabVentaFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setTitle("Venta registrada")
-            .setMessage(mensaje)
+            .setMessage(mensajeResumen)
             .setPositiveButton("Aceptar") { _, _ ->
                 //limpiar solo después de cerrar el diálogo
                 limpiarCampos()
             }
+            .setCancelable(false)
             .show()
-
-        if (isAdded) limpiarCampos()
     }
 
     private fun limpiarCampos() {

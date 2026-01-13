@@ -15,10 +15,6 @@ class VentasViewModel (application: Application) : AndroidViewModel(application)
     private val repository: VentasRepository
     val allVentas: LiveData<List<Ventas>>
 
-    // Nuevo LiveData para resultado de inserción
-    private val _insertResult = MutableLiveData<Pair<Boolean, String>>()
-    val insertResult: LiveData<Pair<Boolean, String>> get() = _insertResult
-
     private val _selectedVentaParaEliminar = MutableLiveData<Ventas?>()
     val selectedVentaParaEliminar: LiveData<Ventas?> get() = _selectedVentaParaEliminar
 
@@ -29,12 +25,7 @@ class VentasViewModel (application: Application) : AndroidViewModel(application)
     }
 
     fun insert(Ventas: Ventas) = viewModelScope.launch{
-        try {
-            repository.insert(Ventas)
-            _insertResult.postValue(Pair(true, "La venta se ha registrado correctamente."))
-        } catch (e: Exception) {
-            _insertResult.postValue(Pair(false, "Error al guardar la venta: ${e.message}"))
-        }
+        repository.insert(Ventas)
     }
 
     fun update(Ventas: Ventas) = viewModelScope.launch{
