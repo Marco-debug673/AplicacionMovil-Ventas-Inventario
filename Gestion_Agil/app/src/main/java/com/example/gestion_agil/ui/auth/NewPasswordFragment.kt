@@ -41,10 +41,9 @@ class NewPasswordFragment : Fragment(R.layout.fragment_new_password) {
             lifecycleScope.launch {
                 val usuario = viewModel.buscarUsuarioPorId(idUsuario) ?: return@launch
 
-                val nuevoSalt = HashUtils.generatesalt()
-                val nuevaClave = HashUtils.hashwithsalt(pass1, nuevoSalt)
+                val nuevaClave = HashUtils.hashPassword(pass1)
 
-                viewModel.actualizarClave(usuario, nuevaClave, nuevoSalt)
+                viewModel.actualizarClave(usuario, nuevaClave)
 
                 Toast.makeText(requireContext(), "Contraseña actualizada", Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()

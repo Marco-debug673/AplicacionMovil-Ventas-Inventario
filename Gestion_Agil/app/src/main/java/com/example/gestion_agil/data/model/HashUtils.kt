@@ -1,20 +1,24 @@
 package com.example.gestion_agil.data.model
 
-import java.security.MessageDigest
-import java.security.SecureRandom
-import java.util.Base64
+import de.mkammerer.argon2.Argon2
+import de.mkammerer.argon2.Argon2Factory
 
 object HashUtils {
 
-    fun generatesalt(): String {
-        val salt = ByteArray(16)
-        SecureRandom().nextBytes(salt)
-        return Base64.getEncoder().encodeToString(salt)
+    private val argon2: Argon2 = Argon2Factory.create()
+
+    // Hashear contraseña
+    fun hashPassword(password: String): String {
+        return argon2.hash(
+            3,          // Hashear contraseña
+            65536,      // memoria (64 MB)
+            1,        // paralelismo
+            password.toCharArray()
+        )
     }
 
-    fun hashwithsalt(password: String, salt: String): String {
-        val combined = password + salt
-        val bytes = MessageDigest.getInstance("SHA-256").digest(combined.toByteArray())
-        return bytes.joinToString(".") { "%02x".format(it) }
+    // Verificar contraseña
+    fun verifyPassword(password: String, hash: String): Boolean {
+        return argon2.verify(hash, password.toCharArray())
     }
 }

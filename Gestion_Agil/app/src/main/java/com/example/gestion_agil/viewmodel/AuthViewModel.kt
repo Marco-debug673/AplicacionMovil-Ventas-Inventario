@@ -52,14 +52,12 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            val salt = HashUtils.generatesalt()
-            val hashedPassword = HashUtils.hashwithsalt(clave, salt)
+            val hashedPassword = HashUtils.hashPassword(clave)
 
             val usuario = Usuarios(
                 nombre_usuario = nombre,
                 correo_electronico = correo,
-                clave_usuario = hashedPassword,
-                salt = salt
+                clave_usuario = hashedPassword
             )
 
             try {
@@ -92,11 +90,10 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            val hashInput = HashUtils.hashwithsalt(clave, usuario.salt)
-            if (hashInput == usuario.clave_usuario) {
+            val isValid = HashUtils.verifyPassword(clave, usuario.clave_usuario)
+            if (isValid) {
                 //Guardar sesión en Room
                 sesionRepository.guardarSesion(usuario.id_usuario)
-
                 _authResult.postValue(Pair(true, "Bienvenido, ${usuario.nombre_usuario}"))
             } else {
                 _authResult.postValue(Pair(false, "Contraseña incorrecta"))

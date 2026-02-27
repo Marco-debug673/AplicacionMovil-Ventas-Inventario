@@ -23,10 +23,9 @@ class RecoveryPasswordViewModel(private val usuariosDao: UsuariosDao) : ViewMode
         return usuariosDao.obtenerPorId(id)
     }
 
-    suspend fun actualizarClave(usuario: Usuarios, nuevaClave: String, nuevoSalt: String) {
+    suspend fun actualizarClave(usuario: Usuarios, nuevaClave: String) {
         val actualizado = usuario.copy(
             clave_usuario = nuevaClave,
-            salt = nuevoSalt,
             pin_recuperacion = null
         )
         usuariosDao.updateUsuarios(actualizado)
