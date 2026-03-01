@@ -1,24 +1,20 @@
 package com.example.gestion_agil.data.model
 
-import de.mkammerer.argon2.Argon2
-import de.mkammerer.argon2.Argon2Factory
+import org.mindrot.jbcrypt.BCrypt
 
 object HashUtils {
 
-    private val argon2: Argon2 = Argon2Factory.create()
-
     // Hashear contraseña
     fun hashPassword(password: String): String {
-        return argon2.hash(
-            3,          // Hashear contraseña
-            65536,      // memoria (64 MB)
-            1,        // paralelismo
-            password.toCharArray()
-        )
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 
     // Verificar contraseña
     fun verifyPassword(password: String, hash: String): Boolean {
-        return argon2.verify(hash, password.toCharArray())
+        return try {
+            BCrypt.checkpw(password, hash)
+        } catch (e: Exception) {
+            false
+        }
     }
 }

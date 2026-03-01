@@ -53,7 +53,7 @@ dependencies {
     //noinspection UseTomlInstead
     implementation("androidx.core:core-splashscreen:1.2.0")
     //noinspection UseTomlInstead
-    implementation("de.mkammerer:argon2-jvm:2.12")
+    implementation("org.mindrot:jbcrypt:0.4")
     // --- WorkManager ---
     //noinspection UseTomlInstead
     implementation("androidx.work:work-runtime-ktx:2.11.1")
