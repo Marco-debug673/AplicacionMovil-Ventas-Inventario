@@ -82,6 +82,13 @@ class ProductosFragment : Fragment() {
             return
         }
 
+        // Validación Whitelist para el nombre: Solo letras (incluyendo tildes y ñ), números y espacios
+        val nombreRegex = Regex("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]+$")
+        if (!nombre.matches(nombreRegex)) {
+            productosViewModel.showErrorMessage("El nombre contiene caracteres no permitidos (solo letras, números y espacios)")
+            return
+        }
+
         val precio = precioStr.toDoubleOrNull() ?: 0.0
         val stockMin = stockMinStr.toIntOrNull() ?: 0
         val stockMax = stockMaxStr.toIntOrNull() ?: 0
