@@ -36,6 +36,9 @@ class NewPasswordFragment : Fragment(R.layout.fragment_new_password) {
             if (pass1 != pass2) {
                 binding.edtConfirmarPassword.error = "Las contraseñas no coinciden"
                 return@setOnClickListener
+            } else if (pass1.isEmpty() && pass2.isEmpty()) {
+                Toast.makeText(requireContext(), "Debes ingresar la nueva contraseña", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             lifecycleScope.launch {
@@ -46,7 +49,7 @@ class NewPasswordFragment : Fragment(R.layout.fragment_new_password) {
                 viewModel.actualizarClave(usuario, nuevaClave)
 
                 Toast.makeText(requireContext(), "Contraseña actualizada", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
+                findNavController().navigate(R.id.action_newPasswordFragment_to_loginFragment)
             }
         }
     }
