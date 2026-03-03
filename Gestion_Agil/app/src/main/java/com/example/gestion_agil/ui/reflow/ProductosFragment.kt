@@ -39,12 +39,12 @@ class ProductosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+// Inicialización del ViewModel para gestionar la lógica de productos.
         productosViewModel = ViewModelProvider(this)[ProductosViewModel::class.java]
-
         val appDb = AppDatabase.getDatabase(requireContext())
         val sesionDao = appDb.SesionDao()
 
-        // Cargar id_usuario desde Room
+        // Carga de la sesión activa del usuario desde la base de datos Room.
         lifecycleScope.launch {
             val sesion = sesionDao.getSesion()
             idUsuario = sesion?.id_usuario ?: -1
@@ -65,7 +65,7 @@ class ProductosFragment : Fragment() {
         // Guardar nuevo producto
         binding.btnGuardar.setOnClickListener { guardarProducto() }
     }
-
+    // Función principal para capturar y validar los datos del nuevo producto.
     private fun guardarProducto() {
         val clave = binding.claveProducto.editText?.text.toString().trim()
         val nombre = binding.nombreProducto.editText?.text.toString().trim()
@@ -74,7 +74,7 @@ class ProductosFragment : Fragment() {
         val stockMinStr = binding.stockMinimoProducto.editText?.text.toString().trim()
         val stockMaxStr = binding.stockMaximoProducto.editText?.text.toString().trim()
         val activo = binding.switchActivoProducto.isChecked
-
+        //Validacion
         if (clave.isEmpty() || nombre.isEmpty() || descripcion.isEmpty() ||
             precioStr.isEmpty() || stockMinStr.isEmpty() || stockMaxStr.isEmpty()
         ) {
@@ -120,7 +120,7 @@ class ProductosFragment : Fragment() {
         mostrarDialogoResultado(true, "Producto registrado correctamente")
         limpiarCampos()
     }
-
+    // Gestión del selector de fecha para la caducidad del producto.
     private fun mostrarDatePicker() {
         val calendario = Calendar.getInstance()
         val año = calendario.get(Calendar.YEAR)
@@ -139,7 +139,7 @@ class ProductosFragment : Fragment() {
         )
         datePicker.show()
     }
-
+    // Muestra una alerta visual indicando si la operación fue exitosa o fallida.
     private fun mostrarDialogoResultado(success: Boolean, mensaje: String) {
         val titulo = if (success) "Éxito" else "Atención"
         val icon = if (success)
