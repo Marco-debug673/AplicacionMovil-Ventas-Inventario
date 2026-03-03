@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.androidx.core.i18n)
     kapt("androidx.room:room-compiler:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
+    implementation("androidx.sqlite:sqlite-ktx:2.6.2")
+    // --- SQLCipher for Encryption ---
+    implementation("net.zetetic:android-database-sqlcipher:4.5.4")
     //LiveData y ViewModel
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
