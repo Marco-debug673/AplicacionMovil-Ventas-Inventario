@@ -5,16 +5,19 @@ import androidx.lifecycle.LiveData
 import com.example.gestion_agil.data.model.Usuarios
 import com.example.gestion_agil.data.model.UsuariosDao
 
-class UsuariosRepository (private val usuariosDao: UsuariosDao) {
+class UsuariosRepository(private val usuariosDao: UsuariosDao) {
 
+    // Listado de todos los usuarios (útil para paneles de administración)
     val allUsuarios: LiveData<List<Usuarios>> = usuariosDao.getAllUsuarios()
+
+    // --- OPERACIONES DE ESCRITURA ---
 
     suspend fun insert(usuarios: Usuarios): Boolean {
         return try {
             usuariosDao.insertUsuarios(usuarios)
-            true //insert éxitoso
+            true // Inserción exitosa
         } catch (e: SQLiteConstraintException) {
-            false //correo duplicado
+            false // Error de restricción (ej. correo duplicado si es UNIQUE)
         }
     }
 
@@ -26,10 +29,12 @@ class UsuariosRepository (private val usuariosDao: UsuariosDao) {
         usuariosDao.deleteUsuarios(usuarios)
     }
 
-    suspend fun login(correo: String, clave: String): Usuarios? {
-        return usuariosDao.login(correo, clave)
-    }
+    // --- OPERACIONES DE BÚSQUEDA ---
 
+    /**
+     * Esta función es ahora la base de tu Login.
+     * El ViewModel la llamará para obtener el usuario y luego comparará los hashes.
+     */
     suspend fun obtenerPorCorreo(correo: String): Usuarios? {
         return usuariosDao.obtenerPorCorreo(correo)
     }

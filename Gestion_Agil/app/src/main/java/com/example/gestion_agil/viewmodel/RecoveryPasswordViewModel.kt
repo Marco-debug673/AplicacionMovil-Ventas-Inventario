@@ -11,12 +11,24 @@ class RecoveryPasswordViewModel(private val usuariosDao: UsuariosDao) : ViewMode
     }
 
     suspend fun guardarPin(usuario: Usuarios, pin: String) {
+        // Aquí podrías aplicar HashUtils al PIN si decides no guardarlo en texto plano
         val actualizado = usuario.copy(pin_recuperacion = pin)
         usuariosDao.updateUsuarios(actualizado)
     }
 
-    suspend fun validarPin(correo: String, pin: String): Usuarios? {
-        return usuariosDao.validarPin(correo, pin)
+    /**
+     * FUNCIÓN CORREGIDA:
+     * Ahora busca al usuario por correo y compara el PIN en memoria.
+     */
+    suspend fun validarPin(correo: String, pinIngresado: String): Usuarios? {
+        val usuario = usuariosDao.obtenerPorCorreo(correo)
+
+        // Verificamos si el usuario existe y si el PIN coincide
+        return if (usuario != null && usuario.pin_recuperacion == pinIngresado) {
+            usuario
+        } else {
+            null
+        }
     }
 
     suspend fun buscarUsuarioPorId(id: Int): Usuarios? {
@@ -27,7 +39,7 @@ class RecoveryPasswordViewModel(private val usuariosDao: UsuariosDao) : ViewMode
         val actualizado = usuario.copy(
             clave_usuario = nuevaClave,
             salt = nuevoSalt,
-            pin_recuperacion = null
+            pin_recuperacion = null // Limpiamos el PIN tras el cambio exitoso
         )
         usuariosDao.updateUsuarios(actualizado)
     }
