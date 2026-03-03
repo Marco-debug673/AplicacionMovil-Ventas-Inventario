@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
 
 @Database(entities = [Productos::class,
     Usuarios::class,
@@ -29,13 +27,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val factory = SupportFactory(SQLiteDatabase.getBytes("tu-clave-secreta".toCharArray()))
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "Tienda_db"
                 )
-                    .openHelperFactory(factory)
                     .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
