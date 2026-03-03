@@ -19,9 +19,8 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
     init {
         val UsuariosDao = AppDatabase.getDatabase(application).UsuariosDao()
-        val sesionDao = AppDatabase.getDatabase(application).SesionDao()
         repository = UsuariosRepository(UsuariosDao)
-        sesionRepository = SesionRepository(sesionDao)
+        sesionRepository = SesionRepository(application)
     }
 
     private val _authResult = MutableLiveData<Pair<Boolean, String>>()
@@ -92,7 +91,7 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
             val isValid = HashUtils.verifyPassword(clave, usuario.clave_usuario)
             if (isValid) {
-                //Guardar sesión en Room
+                //Guardar sesión de forma encriptada
                 sesionRepository.guardarSesion(usuario.id_usuario)
                 _authResult.postValue(Pair(true, "Bienvenido, ${usuario.nombre_usuario}"))
             } else {

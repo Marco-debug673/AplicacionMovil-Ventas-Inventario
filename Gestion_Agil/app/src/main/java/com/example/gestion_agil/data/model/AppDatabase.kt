@@ -10,7 +10,7 @@ import android.content.Context
     Ventas::class,
     Detalle_Venta::class,
     Notificacion::class,
-    Sesion::class], version = 5, exportSchema = false)
+    Sesion::class], version = 6, exportSchema = false)
 
 abstract class AppDatabase : RoomDatabase() {
 

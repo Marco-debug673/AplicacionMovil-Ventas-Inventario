@@ -54,6 +54,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.2.0")
     //noinspection UseTomlInstead
     implementation("org.mindrot:jbcrypt:0.4")
+    // --- Security ---
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     // --- WorkManager ---
     //noinspection UseTomlInstead
     implementation("androidx.work:work-runtime-ktx:2.11.1")

@@ -27,7 +27,7 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
         val db = AppDatabase.getDatabase(application)
 
         usuariosRepository = UsuariosRepository(db.UsuariosDao())
-        sesionRepository = SesionRepository(db.SesionDao())
+        sesionRepository = SesionRepository(application)
 
         cargarUsuarioActual()
     }
@@ -48,7 +48,7 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
     // Cerrar sesión
     fun logout(nombreUsuario: String) {
         viewModelScope.launch {
-            sesionRepository.cerrarSesion() // Limpia tabla 'sesion'
+            sesionRepository.cerrarSesion() // Limpia sesión encriptada
             _usuarioActual.postValue(null)
             _logoutResult.postValue(Pair(true, "Has cerrado sesión, $nombreUsuario"))
         }
