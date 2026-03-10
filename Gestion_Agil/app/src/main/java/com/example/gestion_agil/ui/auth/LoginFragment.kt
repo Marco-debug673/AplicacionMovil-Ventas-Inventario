@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -31,14 +31,14 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Observa los resultados de registro en tiempo real
+        // Observa los resultados de autenticación en tiempo real
         authViewModel.authResult.observe(viewLifecycleOwner) { (success, mensaje) ->
-            Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
-
             if (success) {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 startActivity(intent)
                 requireActivity().finish()
+            } else {
+                showAlertDialog("Error de Inicio de Sesión", mensaje)
             }
         }
 
@@ -47,7 +47,7 @@ class LoginFragment : Fragment() {
             val clave = binding.password.text.toString().trim()
 
             if (correo.isEmpty() || clave.isEmpty()) {
-                Toast.makeText(requireContext(), "Ingresa el correo y la contraseña", Toast.LENGTH_SHORT).show()
+                showAlertDialog("Campos Incompletos", "Ingresa el correo y la contraseña para continuar.")
                 return@setOnClickListener
             }
 
@@ -61,6 +61,17 @@ class LoginFragment : Fragment() {
         binding.textGoToRegister.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         }
+    }
+
+    private fun showAlertDialog(titulo: String, mensaje: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(titulo)
+            .setMessage(mensaje)
+            .setPositiveButton("Aceptar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     override fun onDestroyView() {
