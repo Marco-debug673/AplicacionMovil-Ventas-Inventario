@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gestion_agil.data.model.Productos
+import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.databinding.FragmentHistorialinventarioBinding
 import com.example.gestion_agil.viewmodel.ProductosViewModel
 
@@ -41,8 +42,17 @@ class HistorialInventarioFragment : Fragment() {
         binding.recyclerViewHistorial.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewHistorial.adapter = adapter
 
-        // Observa los productos desde el ViewModel (actualiza lista en tiempo real)
-        productosViewModel.allProducts.observe(viewLifecycleOwner) { productos ->
+        // Obtener el ID del usuario actual para filtrar los productos
+        val sesionRepository = SesionRepository(requireContext())
+        val sesion = sesionRepository.obtenerSesion()
+        val idUsuario = sesion?.id_usuario ?: -1
+
+        if (idUsuario != -1) {
+            productosViewModel.setUserId(idUsuario)
+        }
+
+        // Observa los productos filtrados por usuario desde el ViewModel
+        productosViewModel.productsByUser.observe(viewLifecycleOwner) { productos ->
             listaProductos = productos
             adapter.updateData(productos)
         }
