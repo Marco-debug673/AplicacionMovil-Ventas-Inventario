@@ -18,6 +18,7 @@ import androidx.work.WorkManager
 import com.example.gestion_agil.R
 import com.example.gestion_agil.databinding.ActivityMainBinding
 import java.util.concurrent.TimeUnit
+import androidx.drawerlayout.widget.DrawerLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,15 +39,22 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController = navHostFragment.navController
 
+        // Buscamos el drawerLayout de forma segura, ya que solo existe en tablets (layout-w600dp)
+        val drawerLayout: DrawerLayout? = findViewById(R.id.drawer_layout)
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_transform, R.id.nav_reflow, R.id.nav_profile
-            ), binding.drawerLayout
+            ), drawerLayout
         )
 
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.navView?.setupWithNavController(navController)
+        
+        // El NavigationView también podría estar dentro de content_main en algunos layouts (como w1240dp)
+        binding.appBarMain.contentMain?.root?.findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)?.setupWithNavController(navController)
+
         binding.appBarMain.contentMain?.bottomNavView?.setupWithNavController(navController)
 
         programarCheckVencimientos()
