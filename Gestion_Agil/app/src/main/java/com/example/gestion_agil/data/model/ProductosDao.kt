@@ -18,6 +18,9 @@ interface ProductosDao {
     @Query("SELECT * FROM productos ORDER BY nombre_producto ASC")
     fun getAllProducts(): LiveData<List<Productos>>
 
+    @Query("SELECT * FROM productos WHERE id_usuario_foreign = :userId ORDER BY nombre_producto ASC")
+    fun getProductsByUser(userId: Int): LiveData<List<Productos>>
+
     @Query("SELECT * FROM Productos WHERE clave_producto = :clave LIMIT 1")
     suspend fun getProductoByClave(clave: String): Productos?
 

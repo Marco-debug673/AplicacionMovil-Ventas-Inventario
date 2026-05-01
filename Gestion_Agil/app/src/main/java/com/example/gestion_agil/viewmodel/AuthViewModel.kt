@@ -19,9 +19,8 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
 
     init {
         val UsuariosDao = AppDatabase.getDatabase(application).UsuariosDao()
-        val sesionDao = AppDatabase.getDatabase(application).SesionDao()
         repository = UsuariosRepository(UsuariosDao)
-        sesionRepository = SesionRepository(sesionDao)
+        sesionRepository = SesionRepository(application)
     }
 
     private val _authResult = MutableLiveData<Pair<Boolean, String>>()
@@ -52,14 +51,12 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            val salt = HashUtils.generatesalt()
-            val hashedPassword = HashUtils.hashwithsalt(clave, salt)
+            val hashedPassword = HashUtils.hashPassword(clave)
 
             val usuario = Usuarios(
                 nombre_usuario = nombre,
                 correo_electronico = correo,
-                clave_usuario = hashedPassword,
-                salt = salt
+                clave_usuario = hashedPassword
             )
 
             try {
@@ -92,11 +89,10 @@ class AuthViewModel (application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            val hashInput = HashUtils.hashwithsalt(clave, usuario.salt)
-            if (hashInput == usuario.clave_usuario) {
-                //Guardar sesión en Room
+            val isValid = HashUtils.verifyPassword(clave, usuario.clave_usuario)
+            if (isValid) {
+                //Guardar sesión de forma encriptada
                 sesionRepository.guardarSesion(usuario.id_usuario)
-
                 _authResult.postValue(Pair(true, "Bienvenido, ${usuario.nombre_usuario}"))
             } else {
                 _authResult.postValue(Pair(false, "Contraseña incorrecta"))

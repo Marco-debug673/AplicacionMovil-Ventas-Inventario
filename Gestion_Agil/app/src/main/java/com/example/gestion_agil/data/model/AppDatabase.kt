@@ -10,14 +10,14 @@ import android.content.Context
     Ventas::class,
     Detalle_Venta::class,
     Notificacion::class,
-    Sesion::class], version = 4, exportSchema = false)
+    Sesion::class], version = 6, exportSchema = false)
 
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductosDao
     abstract fun UsuariosDao(): UsuariosDao
     abstract fun ventasDao(): VentasDao
-    abstract fun Detalle_ventaDao(): Detalle_VentaDao
+    abstract fun Detalle_VentaDao(): Detalle_VentaDao
     abstract fun NotificacionDao(): NotificacionDao
     abstract fun SesionDao(): SesionDao
 

@@ -11,6 +11,12 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val repository: ProductosRepository
     val allProducts: LiveData<List<Productos>>
+    
+    private val _userId = MutableLiveData<Int>()
+    val productsByUser: LiveData<List<Productos>> = _userId.switchMap { id ->
+        repository.getProductsByUser(id)
+    }
+
     private val _productoEncontrado = MutableLiveData<Productos?>()
     val productoEncontrado: LiveData<Productos?> get() = _productoEncontrado
 
@@ -28,6 +34,10 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
         val productDao = AppDatabase.getDatabase(application).productDao()
         repository = ProductosRepository(productDao)
         allProducts = repository.allProducts
+    }
+
+    fun setUserId(id: Int) {
+        _userId.value = id
     }
 
     fun insert(product: Productos) = viewModelScope.launch {

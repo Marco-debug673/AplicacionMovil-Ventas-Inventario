@@ -1,20 +1,20 @@
 package com.example.gestion_agil.data.model
 
-import java.security.MessageDigest
-import java.security.SecureRandom
-import java.util.Base64
+import org.mindrot.jbcrypt.BCrypt
 
 object HashUtils {
 
-    fun generatesalt(): String {
-        val salt = ByteArray(16)
-        SecureRandom().nextBytes(salt)
-        return Base64.getEncoder().encodeToString(salt)
+    // Hashear contraseña
+    fun hashPassword(password: String): String {
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 
-    fun hashwithsalt(password: String, salt: String): String {
-        val combined = password + salt
-        val bytes = MessageDigest.getInstance("SHA-256").digest(combined.toByteArray())
-        return bytes.joinToString(".") { "%02x".format(it) }
+    // Verificar contraseña
+    fun verifyPassword(password: String, hash: String): Boolean {
+        return try {
+            BCrypt.checkpw(password, hash)
+        } catch (e: Exception) {
+            false
+        }
     }
 }

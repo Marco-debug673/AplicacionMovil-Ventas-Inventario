@@ -4,10 +4,13 @@ import androidx.lifecycle.LiveData
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.data.model.ProductosDao
 
-
 class ProductosRepository (private val productDao: ProductosDao) {
 
     val allProducts: LiveData<List<Productos>> = productDao.getAllProducts()
+
+    fun getProductsByUser(userId: Int): LiveData<List<Productos>> {
+        return productDao.getProductsByUser(userId)
+    }
 
     suspend fun insert(product: Productos) {
         productDao.insertProductos(product)

@@ -4,8 +4,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -17,12 +20,16 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.gestion_agil.R
 import com.example.gestion_agil.databinding.ActivityMainBinding
+import com.example.gestion_agil.ui.profile.PerfilViewModel
+import com.google.android.material.navigation.NavigationView
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+    private lateinit var perfilViewModel: PerfilViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,28 +37,65 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
 
+        perfilViewModel = ViewModelProvider(this)[PerfilViewModel::class.java]
+
         pedirPermisoNotificaciones()
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
+
+        val drawerLayout: DrawerLayout? = findViewById(R.id.drawer_layout)
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_transform, R.id.nav_reflow, R.id.nav_profile
-            ), binding.drawerLayout
+            ), drawerLayout
         )
 
-        // Configura el ActionBar (la barra superior) para que muestre el título del fragmento
-        // y el botón de navegación del Drawer (menú lateral).
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        // Conecta el DrawerLayout (menú lateral) con el NavController.
-        binding.navView?.setupWithNavController(navController)
+        binding.navView?.let { navView ->
+            navView.setupWithNavController(navController)
+            configurarHeaderNavigation(navView)
+        }
+        
+        binding.appBarMain.contentMain?.root?.findViewById<NavigationView>(R.id.nav_view)?.let { navView ->
+            navView.setupWithNavController(navController)
+            configurarHeaderNavigation(navView)
+        }
+
         binding.appBarMain.contentMain?.bottomNavView?.setupWithNavController(navController)
 
         programarCheckVencimientos()
-        ejecutarWorkerInmediato() // <-- PARA PROBAR AHORA MISMO
+        ejecutarWorkerInmediato()
+    }
+
+    private fun configurarHeaderNavigation(navView: NavigationView) {
+        val headerView = navView.getHeaderView(0)
+        val nameTextView = headerView.findViewById<TextView>(R.id.nav_header_name)
+        val emailTextView = headerView.findViewById<TextView>(R.id.nav_header_email)
+
+        perfilViewModel.usuarioActual.observe(this) { usuario ->
+            if (usuario != null) {
+                nameTextView.text = usuario.nombre_usuario
+                emailTextView.text = ocultarCorreo(usuario.correo_electronico)
+            }
+        }
+    }
+
+    private fun ocultarCorreo(correo: String): String {
+        val partes = correo.split("@")
+        if (partes.size != 2) return correo
+
+        val nombre = partes[0]
+        val dominio = partes[1]
+
+        return if (nombre.length > 1) {
+            nombre[0] + "*".repeat(nombre.length - 1) + "@$dominio"
+        } else {
+            "*@$dominio"
+        }
     }
 
     private fun pedirPermisoNotificaciones() {
@@ -80,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun programarCheckVencimientos() {
         val workRequest = PeriodicWorkRequestBuilder<CheckExpirationWorker>(
-            15, TimeUnit.MINUTES // mínimo permitido por Android
+            15, TimeUnit.MINUTES
         ).build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -96,12 +140,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // El menú se infla automáticamente por los componentes de navegación.
         return true
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

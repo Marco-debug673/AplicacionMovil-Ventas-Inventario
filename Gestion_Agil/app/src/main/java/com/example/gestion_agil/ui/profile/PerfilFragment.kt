@@ -1,5 +1,6 @@
 package com.example.gestion_agil.ui.profile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -38,31 +39,45 @@ class PerfilFragment : Fragment() {
         viewModel.usuarioActual.observe(viewLifecycleOwner) { usuario ->
             if (usuario != null) {
                 binding.profileName.text = usuario.nombre_usuario
-                binding.correo.text = usuario.correo_electronico
+                binding.correo.text = ocultarCorreo(usuario.correo_electronico)
 
                 binding.logoutButton.setOnClickListener {
                     mostrarDialogoCierreSesion(usuario.nombre_usuario)
-            }
-        } else  {
+                }
+            } else {
                 binding.profileName.text = ""
                 binding.correo.text = ""
             }
-    }
-
-    viewModel.logoutResult.observe(viewLifecycleOwner) {
-        result ->
-        val (success, message) = result
-
-        if (success) {
-            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-            irALogin()
         }
-    }
+
+        viewModel.logoutResult.observe(viewLifecycleOwner) { result ->
+            val (success, message) = result
+
+            if (success) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+                irALogin()
+            }
+        }
 
         binding.ayuda.setOnClickListener {
             mostrarAyuda()
         }
     }
+
+    @SuppressLint("SuspiciousIndentation")
+    private fun ocultarCorreo(correo: String): String {
+        val partes = correo.split("@")
+        if (partes.size != 2) return correo
+
+            val nombre = partes[0]
+            val dominio = partes[1]
+
+            return if (nombre.length > 1) {
+                nombre[0] + "*".repeat(nombre.length - 1) + "@$dominio"
+            } else {
+                "*@$dominio"
+            }
+        }
 
     private fun mostrarAyuda() {
         val mensajeAyuda = """

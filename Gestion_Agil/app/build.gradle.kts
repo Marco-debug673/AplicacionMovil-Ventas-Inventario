@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,6 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.example.gestion_agil"
         minSdk = 30
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 7
         versionName = "1.1.1"
@@ -47,19 +50,30 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.constraintlayout)
+    //noinspection UseTomlInstead
     implementation("androidx.core:core-splashscreen:1.2.0")
+    //noinspection UseTomlInstead
+    implementation("org.mindrot:jbcrypt:0.4")
+    // --- Security ---
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     // --- WorkManager ---
-    implementation("androidx.work:work-runtime-ktx:2.11.0")
+    //noinspection UseTomlInstead
+    implementation("androidx.work:work-runtime-ktx:2.11.1")
     // --- ROOM ---
+    //noinspection UseTomlInstead
     implementation("androidx.room:room-runtime:2.8.4")
     implementation(libs.androidx.core.i18n)
+    //noinspection UseTomlInstead,KaptUsageInsteadOfKsp
     kapt("androidx.room:room-compiler:2.8.4")
+    //noinspection UseTomlInstead
     implementation("androidx.room:room-ktx:2.8.4")
     //LiveData y ViewModel
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     // --- Coroutines ---
+    //noinspection UseTomlInstead
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    //noinspection UseTomlInstead
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     //Fragments
     implementation(libs.androidx.navigation.fragment.ktx)
