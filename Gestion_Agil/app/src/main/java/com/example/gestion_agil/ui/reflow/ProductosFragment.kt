@@ -8,10 +8,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.gestion_agil.data.model.AppDatabase
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.databinding.FragmentProductosBinding
 import com.example.gestion_agil.viewmodel.ProductosViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 import java.time.format.DateTimeFormatter
@@ -37,12 +40,17 @@ class ProductosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+// Inicialización del ViewModel para gestionar la lógica de productos.
         productosViewModel = ViewModelProvider(this)[ProductosViewModel::class.java]
 
-        // Obtener id_usuario desde SesionRepository (SharedPreferences Encriptado)
-        val sesionRepository = SesionRepository(requireContext())
-        val sesion = sesionRepository.obtenerSesion()
-        idUsuario = sesion?.id_usuario ?: -1
+        val appDb = AppDatabase.getDatabase(requireContext())
+        val sesionDao = appDb.SesionDao()
+
+        // Cargar id_usuario desde Room
+        lifecycleScope.launch {
+            val sesion = sesionDao.getSesion()
+            idUsuario = sesion?.id_usuario ?: -1
+        }
 
         // Observar mensajes de error o validación desde el ViewModel
         productosViewModel.statusMessage.observe(viewLifecycleOwner) { message ->
@@ -59,7 +67,7 @@ class ProductosFragment : Fragment() {
         // Guardar nuevo producto
         binding.btnGuardar.setOnClickListener { guardarProducto() }
     }
-
+    // Función principal para capturar y validar los datos del nuevo producto.
     private fun guardarProducto() {
         val clave = binding.claveProducto.editText?.text.toString().trim()
         val nombre = binding.nombreProducto.editText?.text.toString().trim()
@@ -68,11 +76,18 @@ class ProductosFragment : Fragment() {
         val stockMinStr = binding.stockMinimoProducto.editText?.text.toString().trim()
         val stockMaxStr = binding.stockMaximoProducto.editText?.text.toString().trim()
         val activo = binding.switchActivoProducto.isChecked
-
+        //Validacion
         if (clave.isEmpty() || nombre.isEmpty() || descripcion.isEmpty() ||
             precioStr.isEmpty() || stockMinStr.isEmpty() || stockMaxStr.isEmpty()
         ) {
             productosViewModel.showErrorMessage("Por favor, completa todos los campos")
+            return
+        }
+
+        // Validación Whitelist para el nombre: Solo letras (incluyendo tildes y ñ), números y espacios
+        val nombreRegex = Regex("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]+$")
+        if (!nombre.matches(nombreRegex)) {
+            productosViewModel.showErrorMessage("El nombre contiene caracteres no permitidos (solo letras, números y espacios)")
             return
         }
 
@@ -114,7 +129,7 @@ class ProductosFragment : Fragment() {
         mostrarDialogoResultado(true, "Producto registrado correctamente")
         limpiarCampos()
     }
-
+    // Gestión del selector de fecha para la caducidad del producto.
     private fun mostrarDatePicker() {
         val calendario = Calendar.getInstance()
         val año = calendario.get(Calendar.YEAR)
@@ -133,7 +148,7 @@ class ProductosFragment : Fragment() {
         )
         datePicker.show()
     }
-
+    // Muestra una alerta visual indicando si la operación fue exitosa o fallida.
     private fun mostrarDialogoResultado(success: Boolean, mensaje: String) {
         val titulo = if (success) "Éxito" else "Atención"
         val icon = if (success)
