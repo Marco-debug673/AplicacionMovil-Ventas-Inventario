@@ -83,10 +83,5 @@
 
     <string-array name="tipos_pago">
         <item>Efectivo</item>
-        <item>Tarjeta de Crédito</item>
-        <item>Tarjeta de Débito</item>
-        <item>Transferencia</item>
-        <item>QR de Mercado Pago</item>
-        <item>PayPal</item>
     </string-array>
 </resources>

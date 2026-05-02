@@ -14,14 +14,17 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.gestion_agil.R
 import com.example.gestion_agil.databinding.ActivityMainBinding
 import com.example.gestion_agil.ui.profile.PerfilViewModel
 import com.google.android.material.navigation.NavigationView
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -67,8 +70,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.appBarMain.contentMain?.bottomNavView?.setupWithNavController(navController)
 
+        // Programar la tarea periódica para producción
         programarCheckVencimientos()
-        ejecutarWorkerInmediato()
     }
 
     private fun configurarHeaderNavigation(navView: NavigationView) {
@@ -123,20 +126,42 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun programarCheckVencimientos() {
-        val workRequest = PeriodicWorkRequestBuilder<CheckExpirationWorker>(
-            15, TimeUnit.MINUTES
-        ).build()
+        // Restricciones para optimizar batería
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "check_vencimientos",
-            ExistingPeriodicWorkPolicy.UPDATE,
-            workRequest
-        )
-    }
+        // Horarios específicos: 8 AM, 11 AM, 1 PM (13), 3 PM (15), 5 PM (17)
+        val horasDeseadas = listOf(8, 11, 13, 15, 17)
+        val ahora = LocalDateTime.now()
 
-    private fun ejecutarWorkerInmediato() {
-        val testWork = OneTimeWorkRequestBuilder<CheckExpirationWorker>().build()
-        WorkManager.getInstance(this).enqueue(testWork)
+        // Cancelar la tarea única anterior (la que solo tenía un horario)
+        WorkManager.getInstance(this).cancelUniqueWork("check_vencimientos")
+
+        for (hora in horasDeseadas) {
+            var proximaEjecucion = LocalDateTime.of(ahora.toLocalDate(), LocalTime.of(hora, 0))
+
+            // Si ya pasó la hora hoy, programar para mañana
+            if (ahora.isAfter(proximaEjecucion)) {
+                proximaEjecucion = proximaEjecucion.plusDays(1)
+            }
+
+            val delayInicial = Duration.between(ahora, proximaEjecucion).toMillis()
+
+            val workRequest = PeriodicWorkRequestBuilder<CheckExpirationWorker>(
+                24, TimeUnit.HOURS
+            )
+                .setConstraints(constraints)
+                .setInitialDelay(delayInicial, TimeUnit.MILLISECONDS)
+                .build()
+
+            // Usamos un nombre único por cada hora para tener las 5 tareas activas
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "check_vencimientos_$hora",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                workRequest
+            )
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
