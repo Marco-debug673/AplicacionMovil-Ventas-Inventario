@@ -8,13 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.example.gestion_agil.data.model.AppDatabase
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.databinding.FragmentProductosBinding
 import com.example.gestion_agil.viewmodel.ProductosViewModel
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 import java.time.format.DateTimeFormatter
@@ -25,6 +22,7 @@ class ProductosFragment : Fragment() {
     private var _binding: FragmentProductosBinding? = null
     private val binding get() = _binding!!
     private lateinit var productosViewModel: ProductosViewModel
+    private lateinit var sesionRepository: SesionRepository
     private var idUsuario: Int = -1
 
     private var fechaSeleccionada: String = ""
@@ -40,17 +38,16 @@ class ProductosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-// Inicialización del ViewModel para gestionar la lógica de productos.
+        // Inicialización del ViewModel para gestionar la lógica de productos.
         productosViewModel = ViewModelProvider(this)[ProductosViewModel::class.java]
 
-        val appDb = AppDatabase.getDatabase(requireContext())
-        val sesionDao = appDb.SesionDao()
+        // Inicialización del repositorio de sesión (SharedPreferences encriptadas)
+        sesionRepository = SesionRepository(requireContext())
 
-        // Cargar id_usuario desde Room
-        lifecycleScope.launch {
-            val sesion = sesionDao.getSesion()
-            idUsuario = sesion?.id_usuario ?: -1
-        }
+        // Cargar id_usuario desde SesionRepository
+        // Esto soluciona el problema de "no se encontró la sesión" ya que el login guarda en Prefs, no en Room.
+        val sesion = sesionRepository.obtenerSesion()
+        idUsuario = sesion?.id_usuario ?: -1
 
         // Observar mensajes de error o validación desde el ViewModel
         productosViewModel.statusMessage.observe(viewLifecycleOwner) { message ->
@@ -67,6 +64,7 @@ class ProductosFragment : Fragment() {
         // Guardar nuevo producto
         binding.btnGuardar.setOnClickListener { guardarProducto() }
     }
+
     // Función principal para capturar y validar los datos del nuevo producto.
     private fun guardarProducto() {
         val clave = binding.claveProducto.editText?.text.toString().trim()
@@ -76,7 +74,8 @@ class ProductosFragment : Fragment() {
         val stockMinStr = binding.stockMinimoProducto.editText?.text.toString().trim()
         val stockMaxStr = binding.stockMaximoProducto.editText?.text.toString().trim()
         val activo = binding.switchActivoProducto.isChecked
-        //Validacion
+        
+        // Validación de campos vacíos
         if (clave.isEmpty() || nombre.isEmpty() || descripcion.isEmpty() ||
             precioStr.isEmpty() || stockMinStr.isEmpty() || stockMaxStr.isEmpty()
         ) {
@@ -100,6 +99,7 @@ class ProductosFragment : Fragment() {
             return
         }
 
+        // Validación de sesión
         if (idUsuario == -1) {
             productosViewModel.showErrorMessage("No se encontró la sesión del usuario")
             return
@@ -122,13 +122,14 @@ class ProductosFragment : Fragment() {
             idUsuarioForeign = idUsuario
         )
 
-        // Insertar producto
+        // Insertar producto a través del ViewModel
         productosViewModel.insert(producto)
         
         // Mostrar confirmación y limpiar campos
         mostrarDialogoResultado(true, "Producto registrado correctamente")
         limpiarCampos()
     }
+
     // Gestión del selector de fecha para la caducidad del producto.
     private fun mostrarDatePicker() {
         val calendario = Calendar.getInstance()
@@ -148,6 +149,7 @@ class ProductosFragment : Fragment() {
         )
         datePicker.show()
     }
+
     // Muestra una alerta visual indicando si la operación fue exitosa o fallida.
     private fun mostrarDialogoResultado(success: Boolean, mensaje: String) {
         val titulo = if (success) "Éxito" else "Atención"
