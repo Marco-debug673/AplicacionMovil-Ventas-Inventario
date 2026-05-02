@@ -10,7 +10,7 @@ import androidx.room.RoomDatabase
     Ventas::class,
     Detalle_Venta::class,
     Notificacion::class,
-    Sesion::class], version = 6, exportSchema = false)
+    Sesion::class], version = 6, exportSchema = true)
 
 abstract class AppDatabase : RoomDatabase() {
 
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "Tienda_db"
                 )
-                    .fallbackToDestructiveMigration(true)
+                    // .fallbackToDestructiveMigration() // Eliminado para producción para evitar pérdida de datos
                     .build()
                 INSTANCE = instance
                 instance
