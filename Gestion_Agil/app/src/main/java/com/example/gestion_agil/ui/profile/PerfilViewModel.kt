@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.gestion_agil.data.model.AppDatabase
+import com.example.gestion_agil.data.model.Notificacion
 import com.example.gestion_agil.data.model.Usuarios
+import com.example.gestion_agil.data.repository.NotificacionRepository
 import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.data.repository.UsuariosRepository
 import kotlinx.coroutines.launch
@@ -15,9 +17,12 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
 
     private val usuariosRepository: UsuariosRepository
     private val sesionRepository: SesionRepository
+    private val notificacionRepository: NotificacionRepository
 
     private val _usuarioActual = MutableLiveData<Usuarios?>()
     val usuarioActual: LiveData<Usuarios?> get() = _usuarioActual
+
+    val notificaciones: LiveData<List<Notificacion>>
 
     //LiveData con resultado del logout (true/false + mensaje)
     private val _logoutResult = MutableLiveData<Pair<Boolean, String>>()
@@ -28,7 +33,9 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
 
         usuariosRepository = UsuariosRepository(db.UsuariosDao())
         sesionRepository = SesionRepository(application)
+        notificacionRepository = NotificacionRepository(db.NotificacionDao())
 
+        notificaciones = notificacionRepository.getNotificaciones()
         cargarUsuarioActual()
     }
 
@@ -42,6 +49,12 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
             } else {
                 _usuarioActual.postValue(null)
             }
+        }
+    }
+
+    fun eliminarNotificacion(notificacion: Notificacion) {
+        viewModelScope.launch {
+            notificacionRepository.deleteNotificacion(notificacion)
         }
     }
 

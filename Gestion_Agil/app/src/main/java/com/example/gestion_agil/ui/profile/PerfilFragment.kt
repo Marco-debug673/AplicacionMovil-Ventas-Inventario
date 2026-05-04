@@ -9,9 +9,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gestion_agil.R
+import com.example.gestion_agil.databinding.DialogNotificationsBinding
 import com.example.gestion_agil.databinding.FragmentPerfilBinding
 import com.example.gestion_agil.ui.LoginActivity
+import com.example.gestion_agil.ui.slideshow.NotificacionAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
@@ -62,6 +65,38 @@ class PerfilFragment : Fragment() {
         binding.ayuda.setOnClickListener {
             mostrarAyuda()
         }
+
+        binding.notificacion.setOnClickListener {
+            mostrarPopUpNotificaciones()
+        }
+    }
+
+    private fun mostrarPopUpNotificaciones() {
+        val dialogBinding = DialogNotificationsBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        val adapter = NotificacionAdapter(emptyList()) { notificacion ->
+            viewModel.eliminarNotificacion(notificacion)
+        }
+
+        dialogBinding.recyclerViewPopUp.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            this.adapter = adapter
+        }
+
+        viewModel.notificaciones.observe(viewLifecycleOwner) { lista ->
+            adapter.updateData(lista)
+            dialogBinding.textNoNotificationsPopUp.visibility = if (lista.isEmpty()) View.VISIBLE else View.GONE
+            dialogBinding.recyclerViewPopUp.visibility = if (lista.isEmpty()) View.GONE else View.VISIBLE
+        }
+
+        dialogBinding.btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     @SuppressLint("SuspiciousIndentation")

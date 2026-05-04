@@ -11,7 +11,7 @@ interface NotificacionDao {
     @Insert
     suspend fun insertNotificacion(notificacion: Notificacion)
 
-    @Query("SELECT * FROM notificaciones ORDER BY fecha DESC")
+    @Query("SELECT * FROM Notificaciones ORDER BY fecha DESC")
     fun getAllNotificaciones(): LiveData<List<Notificacion>>
 
     @Query("SELECT * FROM Notificaciones ORDER BY fecha DESC")

@@ -44,7 +44,10 @@ class SlideshowFragment : Fragment() {
     }
 
     private fun setupRecycler() {
-        adapter = NotificacionAdapter(emptyList())
+        adapter = NotificacionAdapter(emptyList()) { notificacion ->
+            viewModel.deleteNotificacion(notificacion)
+        }
+
         binding.recyclerViewNotifications.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewNotifications.adapter = adapter
     }

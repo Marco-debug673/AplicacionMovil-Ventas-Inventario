@@ -80,6 +80,12 @@
     <string name="nuevacontrasena">Nueva contraseña</string>
     <string name="confirmar_contrasena">Confirmar contraseña</string>
     <string name="guardar_nueva_contrasena">Guardar</string>
+    <string name="titulo_notificacion">Título</string>
+    <string name="mensaje_notificacion">Mensaje de la notificación</string>
+    <string name="fecha_notificacion">2023-10-27</string>
+    <string name="eliminar_notificacion">Eliminar</string>
+    <string name="notificaciones">Notificaciones</string>
+    <string name="no_hay_notificaciones">No hay notificaciones</string>
 
     <string-array name="tipos_pago">
         <item>Efectivo</item>
