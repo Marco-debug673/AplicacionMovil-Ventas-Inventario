@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.databinding.FragmentProductosBinding
+import com.example.gestion_agil.utils.SecurityUtils
 import com.example.gestion_agil.viewmodel.ProductosViewModel
 import java.time.LocalDate
 import java.util.Calendar
@@ -110,9 +111,13 @@ class ProductosFragment : Fragment() {
             return
         }
 
+        // Encriptar datos sensibles
+        val claveEncriptada = SecurityUtils.encrypt(clave)
+        val nombreEncriptado = SecurityUtils.encrypt(nombre)
+
         val producto = Productos(
-            clave_producto = clave,
-            nombre_producto = nombre,
+            clave_producto = claveEncriptada,
+            nombre_producto = nombreEncriptado,
             descripcion = descripcion,
             precio = precio,
             stock_minimo = stockMin,

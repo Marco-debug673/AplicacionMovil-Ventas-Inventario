@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.gestion_agil.data.model.AppDatabase
 import com.example.gestion_agil.data.model.Notificacion
+import com.example.gestion_agil.utils.SecurityUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -31,34 +32,40 @@ class CheckExpirationWorker(
         @Suppress("DEPRECATION") val formatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es"))
 
         productos.forEach { producto ->
+            try {
+                val fechaCad = LocalDate.parse(producto.fecha_caducidad.lowercase(), formatter)
+                val diasRestantes = ChronoUnit.DAYS.between(hoy, fechaCad)
 
-            val fechaCad = LocalDate.parse(producto.fecha_caducidad.lowercase(), formatter)
-            val diasRestantes = ChronoUnit.DAYS.between(hoy, fechaCad)
+                // Desencriptar el nombre del producto para la notificación
+                val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
 
-            // NOTIFICACIÓN DE 3 DÍAS
-            if (diasRestantes == 3L && !producto.notificado_3dias) {
+                // NOTIFICACIÓN DE 3 DÍAS
+                if (diasRestantes == 3L && !producto.notificado_3dias) {
 
-                mostrarNotificacion(
-                    "Producto cerca de vencer",
-                    "El producto ${producto.nombre_producto} vence en 3 días",
-                    producto.id_producto
-                )
+                    mostrarNotificacion(
+                        "Producto cerca de vencer",
+                        "El producto $nombreDesencriptado vence en 3 días",
+                        producto.id_producto
+                    )
 
-                producto.notificado_3dias = true
-                productosDao.updateProductos(producto)
-            }
+                    producto.notificado_3dias = true
+                    productosDao.updateProductos(producto)
+                }
 
-            // NOTIFICACIÓN DEL DÍA DE CADUCIDAD
-            if (diasRestantes == 0L && !producto.notificado_hoy) {
+                // NOTIFICACIÓN DEL DÍA DE CADUCIDAD
+                if (diasRestantes == 0L && !producto.notificado_hoy) {
 
-                mostrarNotificacion(
-                    "Producto vencido",
-                    "El producto ${producto.nombre_producto} vence hoy",
-                    producto.id_producto
-                )
+                    mostrarNotificacion(
+                        "Producto vencido",
+                        "El producto $nombreDesencriptado vence hoy",
+                        producto.id_producto
+                    )
 
-                producto.notificado_hoy = true
-                productosDao.updateProductos(producto)
+                    producto.notificado_hoy = true
+                    productosDao.updateProductos(producto)
+                }
+            } catch (e: Exception) {
+                // Si la fecha no se puede parsear o hay error, se omite el producto
             }
         }
 

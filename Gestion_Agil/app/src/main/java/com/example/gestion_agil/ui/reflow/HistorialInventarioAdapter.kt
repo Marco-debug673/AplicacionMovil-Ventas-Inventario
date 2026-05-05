@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.databinding.ItemProductoBinding
+import com.example.gestion_agil.utils.SecurityUtils
 
 class HistorialInventarioAdapter (
-
     private var productosList: List<Productos>
 ) : RecyclerView.Adapter<HistorialInventarioAdapter.ProductoViewHolder>() {
 
@@ -17,8 +17,12 @@ class HistorialInventarioAdapter (
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(producto: Productos) {
-            binding.tvClaveProducto.text = producto.clave_producto
-            binding.tvNombreProducto.text = producto.nombre_producto
+            // Desencriptar datos para mostrar en la interfaz
+            val claveDesencriptada = SecurityUtils.decrypt(producto.clave_producto)
+            val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
+
+            binding.tvClaveProducto.text = "Clave: $claveDesencriptada"
+            binding.tvNombreProducto.text = "Nombre: $nombreDesencriptado"
             binding.tvDescripcion.text = producto.descripcion
             binding.tvPrecio.text = "Precio: $${producto.precio}"
             binding.tvStock.text = "Stock: ${producto.stock_minimo} - ${producto.stock_maximo}"
@@ -48,8 +52,10 @@ class HistorialInventarioAdapter (
             productosOriginal
         } else {
             productosOriginal.filter {
-                it.nombre_producto.contains(query, ignoreCase = true) ||
-                        it.clave_producto.contains(query, ignoreCase = true)
+                val nombreDec = SecurityUtils.decrypt(it.nombre_producto)
+                val claveDec = SecurityUtils.decrypt(it.clave_producto)
+                nombreDec.contains(query, ignoreCase = true) ||
+                        claveDec.contains(query, ignoreCase = true)
             }
         }
         notifyDataSetChanged()

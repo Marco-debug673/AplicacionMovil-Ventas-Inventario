@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.databinding.ItemProductoBinding
 import com.example.gestion_agil.viewmodel.ProductosViewModel
+import com.example.gestion_agil.utils.SecurityUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -24,9 +25,14 @@ class ProductosAdapter(
 
     override fun onBindViewHolder(holder: ProductoViewHolder, position: Int) {
         val producto = productos[position]
+        
+        // Desencriptar datos para visualización
+        val claveDesencriptada = SecurityUtils.decrypt(producto.clave_producto)
+        val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
+        
         with(holder.binding) {
-            tvClaveProducto.text = "Clave: ${producto.clave_producto}"
-            tvNombreProducto.text = "Nombre: ${producto.nombre_producto}"
+            tvClaveProducto.text = "Clave: $claveDesencriptada"
+            tvNombreProducto.text = "Nombre: $nombreDesencriptado"
             tvDescripcion.text = "Descripción: ${producto.descripcion}"
             tvPrecio.text = "Precio: $${producto.precio}"
             tvStock.text = "Stock: ${producto.stock_minimo}-${producto.stock_maximo}"

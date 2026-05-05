@@ -13,10 +13,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.gestion_agil.R
 import com.example.gestion_agil.data.model.Productos
 import com.example.gestion_agil.data.repository.SesionRepository
 import com.example.gestion_agil.databinding.FragmentHistorialinventarioBinding
+import com.example.gestion_agil.utils.SecurityUtils
 import com.example.gestion_agil.viewmodel.ProductosViewModel
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class HistorialInventarioFragment : Fragment() {
 
@@ -85,14 +88,15 @@ class HistorialInventarioFragment : Fragment() {
             }
         }
 
-        // Filtro de búsqueda en tiempo real
+        // Filtro de búsqueda en tiempo real desencriptando para comparar
         binding.searchViewHistorial.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 val texto = newText.orEmpty().lowercase()
                 val listaFiltrada = listaProductos.filter {
-                    it.nombre_producto.lowercase().contains(texto) ||
-                            it.clave_producto.lowercase().contains(texto)
+                    val nombreDec = SecurityUtils.decrypt(it.nombre_producto).lowercase()
+                    val claveDec = SecurityUtils.decrypt(it.clave_producto).lowercase()
+                    nombreDec.contains(texto) || claveDec.contains(texto)
                 }
                 adapter.updateData(listaFiltrada)
                 return true
@@ -104,33 +108,45 @@ class HistorialInventarioFragment : Fragment() {
      * Diálogo para editar el precio y estado del producto
      */
     private fun mostrarDialogoEditar(producto: Productos) {
-        val inputPrecio = EditText(requireContext()).apply {
-            hint = "Nuevo precio"
+        val context = requireContext()
+        val inputPrecio = EditText(context).apply {
+            hint = getString(R.string.precio_productos)
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
             setText(producto.precio.toString())
         }
 
-        val inputActivo = EditText(requireContext()).apply {
-            hint = "Activo (true / false)"
-            setText(producto.activo.toString())
+        // Usamos SwitchMaterial para que sea idéntico al del registro (ProductosFragment)
+        val switchActivo = SwitchMaterial(context).apply {
+            text = getString(R.string.activo)
+            isChecked = producto.activo
+            textSize = 16f
         }
 
-        val layout = LinearLayout(requireContext()).apply {
+        val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(40, 30, 40, 0)
+            val padding = (24 * resources.displayMetrics.density).toInt()
+            setPadding(padding, padding, padding, 0)
             addView(inputPrecio)
-            addView(inputActivo)
+            
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (16 * resources.displayMetrics.density).toInt()
+            }
+            switchActivo.layoutParams = params
+            addView(switchActivo)
         }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Editar producto")
+        AlertDialog.Builder(context)
+            .setTitle(getString(R.string.editar))
             .setView(layout)
-            .setPositiveButton("Guardar") { _, _ ->
+            .setPositiveButton(getString(R.string.guardar)) { _, _ ->
                 val nuevoPrecio = inputPrecio.text.toString().toDoubleOrNull()
-                val nuevoActivo = inputActivo.text.toString().toBooleanStrictOrNull()
+                val nuevoActivo = switchActivo.isChecked
 
-                if (nuevoPrecio == null || nuevoActivo == null) {
-                    Toast.makeText(requireContext(), "Datos incorrectos", Toast.LENGTH_SHORT).show()
+                if (nuevoPrecio == null) {
+                    Toast.makeText(context, "Precio incorrecto", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
@@ -141,8 +157,7 @@ class HistorialInventarioFragment : Fragment() {
 
                 productosViewModel.update(productoEditado)
                 
-                // Mensaje manual para evitar que se repita al navegar
-                Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Producto actualizado", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -152,9 +167,10 @@ class HistorialInventarioFragment : Fragment() {
      * Diálogo para confirmar eliminación
      */
     private fun mostrarDialogoEliminar(producto: Productos) {
+        val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar producto")
-            .setMessage("¿Deseas eliminar el producto ${producto.nombre_producto}?")
+            .setMessage("¿Deseas eliminar el producto $nombreDesencriptado?")
             .setPositiveButton("Sí") { _, _ ->
                 productosViewModel.delete(producto)
                 // Mensaje manual

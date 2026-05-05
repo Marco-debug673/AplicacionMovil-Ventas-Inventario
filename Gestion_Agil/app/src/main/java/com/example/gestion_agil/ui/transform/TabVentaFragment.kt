@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.gestion_agil.R
 import com.example.gestion_agil.data.model.Ventas
 import com.example.gestion_agil.databinding.FragmentTabVentaBinding
+import com.example.gestion_agil.utils.SecurityUtils
 import com.example.gestion_agil.viewmodel.ProductosViewModel
 import com.example.gestion_agil.viewmodel.VentasViewModel
 import java.text.NumberFormat
@@ -83,14 +84,17 @@ class TabVentaFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Observar producto encontrado por clave o nombre
+        // Observar producto encontrado y desencriptar sus campos para la UI
         productosViewModel.productoEncontrado.observe(viewLifecycleOwner) { producto ->
             if (producto == null) return@observe
 
             actualizandoCampos = true
 
-            binding.claveProducto.editText?.setText(producto.clave_producto)
-            binding.nombreProducto.editText?.setText(producto.nombre_producto)
+            val claveDesencriptada = SecurityUtils.decrypt(producto.clave_producto)
+            val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
+
+            binding.claveProducto.editText?.setText(claveDesencriptada)
+            binding.nombreProducto.editText?.setText(nombreDesencriptado)
             binding.precioProducto.editText?.setText(producto.precio.toString())
             precioActual = producto.precio
 
