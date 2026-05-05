@@ -8,7 +8,9 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.gestion_agil.data.model.AppDatabase
+import com.example.gestion_agil.data.model.Notificacion
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
@@ -38,7 +40,8 @@ class CheckExpirationWorker(
 
                 mostrarNotificacion(
                     "Producto cerca de vencer",
-                    "El producto ${producto.nombre_producto} vence en 3 días"
+                    "El producto ${producto.nombre_producto} vence en 3 días",
+                    producto.id_producto
                 )
 
                 producto.notificado_3dias = true
@@ -50,7 +53,8 @@ class CheckExpirationWorker(
 
                 mostrarNotificacion(
                     "Producto vencido",
-                    "El producto ${producto.nombre_producto} vence hoy"
+                    "El producto ${producto.nombre_producto} vence hoy",
+                    producto.id_producto
                 )
 
                 producto.notificado_hoy = true
@@ -61,9 +65,23 @@ class CheckExpirationWorker(
         return Result.success()
     }
 
-    private fun mostrarNotificacion(titulo: String, mensaje: String) {
+    private suspend fun mostrarNotificacion(titulo: String, mensaje: String, idProducto: Int? = null) {
         val channelId = "vencimiento_channel"
 
+        // Guardar en la base de datos
+        val database = AppDatabase.getDatabase(context)
+        val notificacionDao = database.NotificacionDao()
+        val fechaActual = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale("es")))
+
+        val nuevaNotificacion = Notificacion(
+            id_producto = idProducto,
+            titulo = titulo,
+            mensaje = mensaje,
+            fecha = fechaActual
+        )
+        notificacionDao.insertNotificacion(nuevaNotificacion)
+
+        // Mostrar notificación en el sistema
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
