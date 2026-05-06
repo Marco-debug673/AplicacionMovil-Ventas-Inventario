@@ -13,6 +13,7 @@ import com.example.gestion_agil.utils.SecurityUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
@@ -21,51 +22,52 @@ class CheckExpirationWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    override suspend fun doWork(): Result {
+    // Formateador flexible para manejar variaciones de mayúsculas/minúsculas y puntos en el mes
+    private val flexibleFormatter = DateTimeFormatterBuilder()
+        .parseCaseInsensitive()
+        .appendPattern("d MMM yyyy")
+        .toFormatter(Locale("es"))
 
+    override suspend fun doWork(): Result {
         val productosDao = AppDatabase.getDatabase(context).productDao()
         val productos = productosDao.getAllProductosList()
 
         val hoy = LocalDate.now()
 
-        // FORMATO DE FECHA: "17 nov 2025"
-        @Suppress("DEPRECATION") val formatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es"))
-
         productos.forEach { producto ->
             try {
-                val fechaCad = LocalDate.parse(producto.fecha_caducidad.lowercase(), formatter)
+                // Normalizar la fecha: quitar puntos y limpiar espacios
+                val fechaLimpia = producto.fecha_caducidad.replace(".", "").trim()
+                val fechaCad = LocalDate.parse(fechaLimpia, flexibleFormatter)
+                
                 val diasRestantes = ChronoUnit.DAYS.between(hoy, fechaCad)
 
-                // Desencriptar el nombre del producto para la notificación
+                // Desencriptar el nombre del producto para que aparezca legible en la notificación
                 val nombreDesencriptado = SecurityUtils.decrypt(producto.nombre_producto)
 
                 // NOTIFICACIÓN DE 3 DÍAS
                 if (diasRestantes == 3L && !producto.notificado_3dias) {
-
                     mostrarNotificacion(
                         "Producto cerca de vencer",
                         "El producto $nombreDesencriptado vence en 3 días",
                         producto.id_producto
                     )
-
                     producto.notificado_3dias = true
                     productosDao.updateProductos(producto)
                 }
 
                 // NOTIFICACIÓN DEL DÍA DE CADUCIDAD
                 if (diasRestantes == 0L && !producto.notificado_hoy) {
-
                     mostrarNotificacion(
                         "Producto vencido",
                         "El producto $nombreDesencriptado vence hoy",
                         producto.id_producto
                     )
-
                     producto.notificado_hoy = true
                     productosDao.updateProductos(producto)
                 }
             } catch (e: Exception) {
-                // Si la fecha no se puede parsear o hay error, se omite el producto
+                // Si la fecha no se puede parsear, se ignora ese producto específico
             }
         }
 
@@ -75,7 +77,7 @@ class CheckExpirationWorker(
     private suspend fun mostrarNotificacion(titulo: String, mensaje: String, idProducto: Int? = null) {
         val channelId = "vencimiento_channel"
 
-        // Guardar en la base de datos
+        // Guardar en la base de datos (se guarda el mensaje ya desencriptado)
         val database = AppDatabase.getDatabase(context)
         val notificacionDao = database.NotificacionDao()
         val fechaActual = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale("es")))
@@ -105,6 +107,7 @@ class CheckExpirationWorker(
             .setContentText(mensaje)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
         manager.notify((0..9999).random(), notification)
