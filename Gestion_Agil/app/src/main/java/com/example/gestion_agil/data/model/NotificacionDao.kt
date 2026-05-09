@@ -14,6 +14,9 @@ interface NotificacionDao {
     @Query("SELECT * FROM Notificaciones ORDER BY fecha DESC")
     fun getAllNotificaciones(): LiveData<List<Notificacion>>
 
+    @Query("SELECT * FROM Notificaciones WHERE id_usuario = :userId ORDER BY fecha DESC")
+    fun getNotificacionesByUser(userId: Int): LiveData<List<Notificacion>>
+
     @Query("SELECT * FROM Notificaciones ORDER BY fecha DESC")
     suspend fun getAllNotificacionesList(): List<Notificacion>
 

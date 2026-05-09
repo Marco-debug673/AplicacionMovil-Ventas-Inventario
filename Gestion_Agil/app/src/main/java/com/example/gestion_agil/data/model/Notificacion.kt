@@ -8,6 +8,7 @@ data class Notificacion (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val id_producto: Int?,
+    val id_usuario: Int = -1, // Nuevo campo para filtrar por usuario
     val titulo: String,
     val mensaje: String,
     val fecha: String

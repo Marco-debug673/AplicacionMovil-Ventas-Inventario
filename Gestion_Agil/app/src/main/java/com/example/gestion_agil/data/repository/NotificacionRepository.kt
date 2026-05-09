@@ -14,6 +14,10 @@ class NotificacionRepository(private val dao: NotificacionDao) {
         return dao.getAllNotificaciones()
     }
 
+    fun getNotificacionesByUser(userId: Int): LiveData<List<Notificacion>> {
+        return dao.getNotificacionesByUser(userId)
+    }
+
     suspend fun deleteNotificacion(notificacion: Notificacion) {
         dao.deleteNotificacion(notificacion)
     }

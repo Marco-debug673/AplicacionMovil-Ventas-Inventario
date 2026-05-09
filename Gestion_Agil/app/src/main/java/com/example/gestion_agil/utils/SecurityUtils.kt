@@ -17,8 +17,12 @@ object SecurityUtils {
     }
 
     private fun getSecretKey(): SecretKey {
-        val existingKey = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
-        return existingKey?.secretKey ?: createKey()
+        return try {
+            val existingKey = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
+            existingKey?.secretKey ?: createKey()
+        } catch (e: Exception) {
+            createKey()
+        }
     }
 
     private fun createKey(): SecretKey {
@@ -36,33 +40,37 @@ object SecurityUtils {
     }
 
     fun encrypt(data: String?): String {
-        if (data == null) return ""
+        if (data.isNullOrBlank()) return ""
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, getSecretKey())
             val iv = cipher.iv
-            val encryptedData = cipher.doFinal(data.toByteArray(Charsets.UTF_8))
+            val encryptedData = cipher.doFinal(data.trim().toByteArray(Charsets.UTF_8))
             val combined = iv + encryptedData
-            Base64.encodeToString(combined, Base64.DEFAULT)
+            // NO_WRAP evita saltos de línea que rompen la base de datos
+            Base64.encodeToString(combined, Base64.NO_WRAP)
         } catch (e: Exception) {
-            data
+            data ?: ""
         }
     }
 
     fun decrypt(encryptedDataWithIv: String?): String {
-        if (encryptedDataWithIv.isNullOrEmpty()) return ""
+        if (encryptedDataWithIv.isNullOrBlank()) return ""
         return try {
-            val combined = Base64.decode(encryptedDataWithIv, Base64.DEFAULT)
-            if (combined.size < 12) return encryptedDataWithIv
+            val cleaned = encryptedDataWithIv.trim()
+            // DEFAULT es más tolerante al decodificar (acepta NO_WRAP y DEFAULT)
+            val combined = Base64.decode(cleaned, Base64.DEFAULT)
+            if (combined.size < 12) return cleaned
             
             val cipher = Cipher.getInstance(TRANSFORMATION)
             val iv = combined.sliceArray(0 until 12)
             val encryptedData = combined.sliceArray(12 until combined.size)
             val spec = GCMParameterSpec(128, iv)
             cipher.init(Cipher.DECRYPT_MODE, getSecretKey(), spec)
-            String(cipher.doFinal(encryptedData), Charsets.UTF_8)
+            String(cipher.doFinal(encryptedData), Charsets.UTF_8).trim()
         } catch (e: Exception) {
-            encryptedDataWithIv // Retornar el original si falla (por si no estaba encriptado)
+            // Si falla, devolvemos el original limpio por si no estaba encriptado
+            encryptedDataWithIv.trim()
         }
     }
 }

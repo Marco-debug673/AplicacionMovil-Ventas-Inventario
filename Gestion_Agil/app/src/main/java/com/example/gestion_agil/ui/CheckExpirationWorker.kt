@@ -50,7 +50,8 @@ class CheckExpirationWorker(
                     mostrarNotificacion(
                         "Producto cerca de vencer",
                         "El producto $nombreDesencriptado vence en 3 días",
-                        producto.id_producto
+                        producto.id_producto,
+                        producto.idUsuarioForeign
                     )
                     producto.notificado_3dias = true
                     productosDao.updateProductos(producto)
@@ -61,7 +62,8 @@ class CheckExpirationWorker(
                     mostrarNotificacion(
                         "Producto vencido",
                         "El producto $nombreDesencriptado vence hoy",
-                        producto.id_producto
+                        producto.id_producto,
+                        producto.idUsuarioForeign
                     )
                     producto.notificado_hoy = true
                     productosDao.updateProductos(producto)
@@ -74,7 +76,7 @@ class CheckExpirationWorker(
         return Result.success()
     }
 
-    private suspend fun mostrarNotificacion(titulo: String, mensaje: String, idProducto: Int? = null) {
+    private suspend fun mostrarNotificacion(titulo: String, mensaje: String, idProducto: Int? = null, idUsuario: Int) {
         val channelId = "vencimiento_channel"
 
         // Guardar en la base de datos (se guarda el mensaje ya desencriptado)
@@ -84,6 +86,7 @@ class CheckExpirationWorker(
 
         val nuevaNotificacion = Notificacion(
             id_producto = idProducto,
+            id_usuario = idUsuario,
             titulo = titulo,
             mensaje = mensaje,
             fecha = fechaActual
